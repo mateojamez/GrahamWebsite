@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-config.js";
+import { WEDDING } from "./wedding-config.js";
+import { invitedColumn } from "./event-columns.js";
 
 function isConfigReady() {
   const urlOk =
@@ -11,6 +13,14 @@ function isConfigReady() {
     !String(SUPABASE_ANON_KEY).includes("your_supabase_anon_key") &&
     String(SUPABASE_ANON_KEY).length > 20;
   return urlOk && keyOk;
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /** @param {string | null | undefined} value */
@@ -48,9 +58,7 @@ function appendRow(tbody, cols) {
 const els = {
   summary: document.getElementById("rsvpcheck-summary"),
   message: document.getElementById("rsvpcheck-message"),
-  attendingBody: document.getElementById("rsvpcheck-attending"),
-  notAttendingBody: document.getElementById("rsvpcheck-not-attending"),
-  noResponseBody: document.getElementById("rsvpcheck-no-response"),
+  eventsRoot: document.getElementById("rsvpcheck-events"),
   refresh: document.getElementById("rsvpcheck-refresh"),
 };
 
@@ -60,6 +68,54 @@ function setMessage(text, isError = false) {
   if (!els.message) return;
   els.message.textContent = text;
   els.message.classList.toggle("rsvp-message--error", isError);
+}
+
+/** @param {{ slug: string, name: string }} event */
+function eventSectionTemplate(event) {
+  const slug = escapeHtml(event.slug);
+  return `
+    <section class="rsvpcheck-event">
+      <div class="rsvpcheck-head">
+        <h2 class="rsvpcheck-title">${escapeHtml(event.name)}</h2>
+      </div>
+      <div class="rsvpcheck-summary" id="rsvpcheck-summary-${slug}" aria-live="polite"></div>
+      <div class="rsvpcheck-grid">
+        <section class="rsvpcheck-card">
+          <h2 class="rsvp-party-title">Attending (Yes)</h2>
+          <div class="rsvpcheck-table-wrap">
+            <table class="rsvpcheck-table">
+              <thead>
+                <tr><th>Name</th><th>Party</th><th>Dietary Restrictions</th></tr>
+              </thead>
+              <tbody id="rsvpcheck-attending-${slug}"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="rsvpcheck-card">
+          <h2 class="rsvp-party-title">Not Attending</h2>
+          <div class="rsvpcheck-table-wrap">
+            <table class="rsvpcheck-table">
+              <thead>
+                <tr><th>Name</th><th>Party</th><th>Dietary Restrictions</th></tr>
+              </thead>
+              <tbody id="rsvpcheck-not-attending-${slug}"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="rsvpcheck-card">
+          <h2 class="rsvp-party-title">No Response</h2>
+          <div class="rsvpcheck-table-wrap">
+            <table class="rsvpcheck-table">
+              <thead>
+                <tr><th>Name</th><th>Party</th><th>Dietary Restrictions</th></tr>
+              </thead>
+              <tbody id="rsvpcheck-no-response-${slug}"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  `;
 }
 
 async function loadDashboard() {
@@ -73,6 +129,9 @@ async function loadDashboard() {
 
   setMessage("Loading RSVP dashboard...");
 
+  const events = WEDDING.events.filter((e) => e.rsvp);
+  const inviteColumns = events.map((e) => invitedColumn(e.slug));
+
   const [{ data: guests, error: guestsError }, { data: rsvps, error: rsvpsError }] =
     await Promise.all([
       supabase
@@ -83,14 +142,13 @@ async function loadDashboard() {
           first_name,
           last_name,
           party_id,
-          parties (
-            party_name
-          )
+          parties ( party_name ),
+          ${inviteColumns.join(",\n          ")}
         `
         )
         .order("first_name", { ascending: true })
         .order("last_name", { ascending: true }),
-      supabase.from("rsvps").select("guest_id, attending, dietary_restrictions"),
+      supabase.from("rsvps").select("guest_id, event, attending, dietary_restrictions"),
     ]);
 
   if (guestsError || rsvpsError) {
@@ -99,67 +157,83 @@ async function loadDashboard() {
     return;
   }
 
-  const rsvpByGuestId = new Map();
+  const rsvpByGuestEvent = new Map();
   for (const row of rsvps ?? []) {
-    rsvpByGuestId.set(row.guest_id, row);
+    rsvpByGuestEvent.set(`${row.guest_id}:${row.event}`, row);
   }
 
-  /** @type {Array<{name: string, party: string, dietary: string}>} */
-  const attending = [];
-  /** @type {Array<{name: string, party: string, dietary: string}>} */
-  const notAttending = [];
-  /** @type {Array<{name: string, party: string, dietary: string}>} */
-  const noResponse = [];
+  if (!els.eventsRoot) return;
+  els.eventsRoot.innerHTML = events.map(eventSectionTemplate).join("");
 
-  for (const guest of guests ?? []) {
-    const guestRsvp = rsvpByGuestId.get(guest.id) || null;
-    const partyName = Array.isArray(guest.parties)
-      ? guest.parties[0]?.party_name
-      : guest.parties?.party_name;
+  let totalAttending = 0;
+  let totalNotAttending = 0;
+  let totalNoResponse = 0;
 
-    const rowBase = {
-      name: fullName(guest),
-      party: safeText(partyName),
-      dietary: safeText(guestRsvp?.dietary_restrictions),
-    };
+  for (const event of events) {
+    const attendingBody = document.getElementById(`rsvpcheck-attending-${event.slug}`);
+    const notAttendingBody = document.getElementById(`rsvpcheck-not-attending-${event.slug}`);
+    const noResponseBody = document.getElementById(`rsvpcheck-no-response-${event.slug}`);
+    const summaryEl = document.getElementById(`rsvpcheck-summary-${event.slug}`);
 
-    if (guestRsvp?.attending === true) {
-      attending.push(rowBase);
-    } else if (guestRsvp) {
-      notAttending.push(rowBase);
-    } else {
-      noResponse.push(rowBase);
+    const attending = [];
+    const notAttending = [];
+    const noResponse = [];
+
+    for (const guest of guests ?? []) {
+      if (guest[invitedColumn(event.slug)] !== true) continue;
+
+      const guestRsvp = rsvpByGuestEvent.get(`${guest.id}:${event.slug}`) || null;
+      const partyName = Array.isArray(guest.parties)
+        ? guest.parties[0]?.party_name
+        : guest.parties?.party_name;
+
+      const rowBase = {
+        name: fullName(guest),
+        party: safeText(partyName),
+        dietary: safeText(guestRsvp?.dietary_restrictions),
+      };
+
+      if (guestRsvp?.attending === true) {
+        attending.push(rowBase);
+      } else if (guestRsvp) {
+        notAttending.push(rowBase);
+      } else {
+        noResponse.push(rowBase);
+      }
     }
-  }
 
-  clear(els.attendingBody);
-  clear(els.notAttendingBody);
-  clear(els.noResponseBody);
+    clear(attendingBody);
+    clear(notAttendingBody);
+    clear(noResponseBody);
 
-  for (const row of attending) {
-    appendRow(els.attendingBody, [row.name, row.party, row.dietary]);
-  }
-  for (const row of notAttending) {
-    appendRow(els.notAttendingBody, [row.name, row.party, row.dietary]);
-  }
-  for (const row of noResponse) {
-    appendRow(els.noResponseBody, [row.name, row.party, row.dietary]);
-  }
+    for (const row of attending) appendRow(attendingBody, [row.name, row.party, row.dietary]);
+    for (const row of notAttending) appendRow(notAttendingBody, [row.name, row.party, row.dietary]);
+    for (const row of noResponse) appendRow(noResponseBody, [row.name, row.party, row.dietary]);
 
-  if (attending.length === 0) {
-    appendRow(els.attendingBody, ["No guests marked as attending yet.", "—", "—"]);
-  }
-  if (notAttending.length === 0) {
-    appendRow(els.notAttendingBody, ["No guests marked as not attending.", "—", "—"]);
-  }
-  if (noResponse.length === 0) {
-    appendRow(els.noResponseBody, ["No guests without a response.", "—", "—"]);
+    if (attending.length === 0) {
+      appendRow(attendingBody, ["No guests marked as attending yet.", "—", "—"]);
+    }
+    if (notAttending.length === 0) {
+      appendRow(notAttendingBody, ["No guests marked as not attending.", "—", "—"]);
+    }
+    if (noResponse.length === 0) {
+      appendRow(noResponseBody, ["No guests without a response.", "—", "—"]);
+    }
+
+    if (summaryEl) {
+      const invitedCount = attending.length + notAttending.length + noResponse.length;
+      summaryEl.textContent =
+        `Invited: ${invitedCount} | Attending: ${attending.length} | Not Attending: ${notAttending.length} | No Response: ${noResponse.length}`;
+    }
+
+    totalAttending += attending.length;
+    totalNotAttending += notAttending.length;
+    totalNoResponse += noResponse.length;
   }
 
   if (els.summary) {
-    const total = (guests ?? []).length;
     els.summary.textContent =
-      `Total Guests: ${total} | Attending: ${attending.length} | Not Attending: ${notAttending.length} | No Response: ${noResponse.length}`;
+      `Total Guests: ${(guests ?? []).length} across ${events.length} events | Attending: ${totalAttending} | Not Attending: ${totalNotAttending} | No Response: ${totalNoResponse}`;
   }
 
   setMessage("RSVP dashboard updated.");

@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-config.js";
+import { WEDDING } from "./wedding-config.js";
+import { invitedColumn } from "./event-columns.js";
 
 function isConfigReady() {
   const urlOk =
@@ -29,9 +31,24 @@ const els = {
 };
 
 let supabase = null;
-/** @type {{ id: string, party_name: string, guests: { id: string, first_name: string, last_name: string | null }[] } | null} */
+/**
+ * @type {{ id: string, party_name: string, guests: Record<string, unknown>[] } | null}
+ * Each guest also carries one `invited_<slug>` boolean per RSVP event
+ * (see EVENT_INVITE_COLUMNS below), fetched dynamically so the query stays in
+ * sync with whatever events are listed in wedding-config.js.
+ */
 let party = null;
+/** responses[guestId][eventSlug] = { attending: "yes" | "no" | "", dietary_restrictions: string } */
 const responses = {};
+
+/** Only events with `rsvp: true` get RSVP fields; the temple, for example, doesn't. */
+const RSVP_EVENTS = WEDDING.events.filter((e) => e.rsvp);
+const EVENT_INVITE_COLUMNS = RSVP_EVENTS.map((e) => invitedColumn(e.slug));
+
+/** @param {Record<string, unknown>} guest */
+function invitedEventsForGuest(guest) {
+  return RSVP_EVENTS.filter((e) => guest[invitedColumn(e.slug)] === true);
+}
 
 function setMessage(text, isError = false) {
   els.message.textContent = text;
@@ -129,17 +146,14 @@ async function fetchGuestCandidates(db, userFirst, userLast) {
   return { data: [...merged.values()], error: null };
 }
 
-function renderGuestFields(guests) {
-  Object.keys(responses).forEach((k) => delete responses[k]);
-
-  els.guestFields.innerHTML = guests
-    .map(
-      (g) => `
-    <article class="rsvp-guest-card" data-guest-id="${escapeHtml(g.id)}">
-      <h2 class="rsvp-guest-card__name">${escapeHtml(formatGuestName(g))}</h2>
+/** @param {string} guestId @param {{ slug: string, name: string }} event */
+function renderEventField(guestId, event) {
+  return `
+    <div class="rsvp-event-field" data-event-slug="${escapeHtml(event.slug)}">
+      <h3 class="rsvp-event-field__name">${escapeHtml(event.name)}</h3>
       <label class="rsvp-field">
         <span class="rsvp-field__label">Attending?</span>
-        <select class="rsvp-input" required data-guest-id="${escapeHtml(g.id)}" data-field="attending">
+        <select class="rsvp-input" required data-guest-id="${escapeHtml(guestId)}" data-event-slug="${escapeHtml(event.slug)}" data-field="attending">
           <option value="">Select one</option>
           <option value="yes">Yes</option>
           <option value="no">No</option>
@@ -147,19 +161,39 @@ function renderGuestFields(guests) {
       </label>
       <label class="rsvp-field">
         <span class="rsvp-field__label">Dietary restrictions</span>
-        <input class="rsvp-input" type="text" placeholder="Allergies or dietary needs" data-guest-id="${escapeHtml(g.id)}" data-field="dietary_restrictions" />
+        <input class="rsvp-input" type="text" placeholder="Allergies or dietary needs" data-guest-id="${escapeHtml(guestId)}" data-event-slug="${escapeHtml(event.slug)}" data-field="dietary_restrictions" />
       </label>
+    </div>
+  `;
+}
+
+function renderGuestFields(guests) {
+  Object.keys(responses).forEach((k) => delete responses[k]);
+
+  els.guestFields.innerHTML = guests
+    .map((g) => {
+      const invitedEvents = invitedEventsForGuest(g);
+      const eventFields = invitedEvents.length
+        ? invitedEvents.map((event) => renderEventField(g.id, event)).join("")
+        : `<p class="rsvp-field__label">No events to RSVP for.</p>`;
+
+      return `
+    <article class="rsvp-guest-card" data-guest-id="${escapeHtml(g.id)}">
+      <h2 class="rsvp-guest-card__name">${escapeHtml(formatGuestName(g))}</h2>
+      ${eventFields}
     </article>
-  `
-    )
+  `;
+    })
     .join("");
 
   els.guestFields.querySelectorAll("[data-field]").forEach((input) => {
     const guestId = input.getAttribute("data-guest-id");
+    const eventSlug = input.getAttribute("data-event-slug");
     const field = input.getAttribute("data-field");
     const sync = () => {
       responses[guestId] = responses[guestId] || {};
-      responses[guestId][field] = input.value;
+      responses[guestId][eventSlug] = responses[guestId][eventSlug] || {};
+      responses[guestId][eventSlug][field] = input.value;
     };
     input.addEventListener("input", sync);
     input.addEventListener("change", sync);
@@ -229,7 +263,8 @@ async function loadParty(partyId) {
         guests (
           id,
           first_name,
-          last_name
+          last_name,
+          ${EVENT_INVITE_COLUMNS.join(",\n          ")}
         )
       `
     )
@@ -300,14 +335,26 @@ async function submitRSVP(e) {
   if (!supabase || !party) return;
 
   const guests = party.guests || [];
-  const rows = guests.map((guest) => ({
-    guest_id: guest.id,
-    attending: responses[guest.id]?.attending === "yes",
-    dietary_restrictions: responses[guest.id]?.dietary_restrictions || "",
-    updated_at: new Date().toISOString(),
-  }));
+  const rows = [];
+  for (const guest of guests) {
+    for (const event of invitedEventsForGuest(guest)) {
+      const answer = responses[guest.id]?.[event.slug] || {};
+      rows.push({
+        guest_id: guest.id,
+        event: event.slug,
+        attending: answer.attending === "yes",
+        dietary_restrictions: answer.dietary_restrictions || "",
+        updated_at: new Date().toISOString(),
+      });
+    }
+  }
 
-  const { error } = await supabase.from("rsvps").upsert(rows, { onConflict: "guest_id" });
+  if (rows.length === 0) {
+    setMessage("There are no events to RSVP for on this invitation.", true);
+    return;
+  }
+
+  const { error } = await supabase.from("rsvps").upsert(rows, { onConflict: "guest_id,event" });
 
   if (error) {
     console.error("RSVP upsert failed:", error);
@@ -316,7 +363,7 @@ async function submitRSVP(e) {
     return;
   }
 
-  setMessage("Thank you! Your RSVP has been saved.");
+  setMessage("RSVP sent. Thank you!");
 }
 
 function init() {

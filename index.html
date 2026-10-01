@@ -3,187 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Taylor & Connor | Home</title>
+  <title data-wc-title="Home">Tabitha & Harrison | Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Corinthia&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body class="home-body">
+<body>
   <header class="site-header">
+    <a class="monogram" href="index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="monogram__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
     <nav class="nav" aria-label="Main">
       <a href="index.html" aria-current="page">Home</a>
+      <a href="info.html">Info</a>
       <a href="registry-list/index.html">Registry</a>
-      <a href="rsvp.html">RSVP</a>
-      <a href="faq.html">FAQs</a>
+      <a class="nav__rsvp" href="rsvp.html">RSVP</a>
     </nav>
   </header>
 
   <main>
-    <section id="welcome" class="hero hero--welcome" aria-label="Welcome">
-      <!-- Background: images/taylorcj3.JPG (see .hero--welcome in css/styles.css) -->
-      <div class="hero__scrim" aria-hidden="true"></div>
-      <div class="hero__content"> 
-        <h1 class="hero__names">
-          <span class="hero__name" data-placeholder="Partner A">Taylor</span>
-          <span class="hero__and">&amp;</span>
-          <span class="hero__name" data-placeholder="Partner B">Connor</span>
-        </h1>
-        <p class="hero__announce">are celebrating their wedding!</p>
-        <time datetime="2026-10-21" class="hero__date">Wednesday, October 21, 2026</time>
-        <p class="hero__actions">
-          <a class="hero__btn" href="rsvp.html">RSVP</a>
-        </p>
+    <section class="hero" aria-labelledby="hero-names">
+      <h1 class="hero__names" id="hero-names">
+        <span class="hero__name" data-wc="couple.partnerA.first">Tabitha</span>
+        <span class="hero__amp" aria-label="and">&amp;</span>
+        <span class="hero__name hero__name--second" data-wc="couple.partnerB.first">Harrison</span>
+      </h1>
+      <div class="hero__details">
+        <p class="hero__intro">are getting married</p>
+        <p class="hero__date"><time data-wc="date.display" data-wc-attr="datetime:date.iso">Saturday, January 16, 2027</time></p>
+        <p class="hero__city" data-wc="city">Mesa, Arizona</p>
+        <a class="button" href="rsvp.html">RSVP</a>
       </div>
     </section>
 
-    <section id="story" class="section section--cream">
-      <div class="story__swans" aria-hidden="true">
-        <img src="images/twoswans.png" alt="" decoding="async" loading="lazy" />
-      </div>
-      <div class="section__inner section__inner--narrow">
-        <h2 class="section__title">Our Love Story</h2>
-        <div class="prose story">
-          <p class="story__drop">
-            Connor and Taylor's love story starts at the Dutch Brothers on Southern and Greenfield in September of 2022, when Taylor gave Connor a kazoo she made out of a straw and asked him to join a band she made up with their coworkers. What started as coworkers quickly moved to friends, and then came a beautiful relationship, creating the most amazing memories and moments.
-          </p>
-          <p>
-            Now, in the past 4 years, they've gone on hundreds of dates, bought countless flowers, had way too much caffeine, and shared the things they love most with each other. Through every high and every challenge, they've grown side by side, learning each other more deeply and choosing each other again and again. 
-          </p>
-          <p>
-            Then one August day in 2025, Connor somehow convinced her he had tickets to a concert on the Diamond Rim up near Payson. She had no idea until she saw the lights and sunflowers on the sunset cliffside the life-changing question he was about to ask her. After getting her out of the car, he knelt down and asked her the question. And that's where the new chapter in their lives began.
-          </p>
-          <p class="story__closing">They are so excited to share this chapter with you— and it starts on October 21st, 2026..</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="when-where" class="section section--cream">
-      <div class="section__inner">
-        <h2 class="section__title info-headers">When &amp; Where</h2>
-        <div class="card-grid">
-          <article class="card">
-            <h3>Wedding Date</h3>
-            <p class="card__lead"><time datetime="2026-10-21">Wednesday, October 21, 2026</time></p>
-          </article>
-          <article class="card">
-            <h3>Ceremony Start Time</h3>
-            <p class="card__lead">4:00 PM</p>
-            <p class="card__note">Please be there 10 minutes before start time to find your seat.</p>
-          </article>
-          <article class="card card--wide">
-            <h3>Location</h3>
-            <address class="venue">
-              <strong>Gather Estate</strong><br />
-              2600 E Southern Ave<br />
-              Mesa, AZ 85204
-            </address>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="reception" class="section section--dark">
-      <div class="section__inner">
-        <div class="section-split section-split--image-right">
-          <div class="section-split__main">
-            <h2 class="section__title section__title--light info-headers">Evening Timeline</h2>
-        <ol class="evening-timeline" aria-label="Schedule for the wedding evening">
-          <li class="evening-timeline__item">
-            <div class="evening-timeline__content">
-              <time class="evening-timeline__time" datetime="">4:00PM</time>
-              <h3 class="evening-timeline__label">Ceremony</h3>
-            </div>
-            <span class="evening-timeline__marker" aria-hidden="true"></span>
-          </li>
-          <li class="evening-timeline__item">
-            <div class="evening-timeline__content">
-              <time class="evening-timeline__time" datetime="">4:30 PM</time>
-              <h3 class="evening-timeline__label">Cocktail Hour</h3>
-            </div>
-            <span class="evening-timeline__marker" aria-hidden="true"></span>
-          </li>
-          <li class="evening-timeline__item">
-            <div class="evening-timeline__content">
-              <time class="evening-timeline__time" datetime="">5:45 PM</time>
-              <h3 class="evening-timeline__label">Dinner</h3>
-            </div>
-            <span class="evening-timeline__marker" aria-hidden="true"></span>
-          </li>
-          <li class="evening-timeline__item">
-            <div class="evening-timeline__content">
-              <time class="evening-timeline__time" datetime="">7:00 PM</time>
-              <h3 class="evening-timeline__label">Reception</h3>
-            </div>
-            <span class="evening-timeline__marker" aria-hidden="true"></span>
-          </li>
-          <li class="evening-timeline__item">
-            <div class="evening-timeline__content">
-              <time class="evening-timeline__time" datetime="">9:45 PM</time>
-              <h3 class="evening-timeline__label">Reception ends</h3>
-            </div>
-            <span class="evening-timeline__marker" aria-hidden="true"></span>
-          </li>
+    <section class="schedule" aria-labelledby="schedule-title">
+      <div class="schedule__inner">
+        <h2 class="section-title" id="schedule-title">The weekend</h2>
+        <ol class="stem" data-wc-schedule>
+          <!-- Rendered from WEDDING.events in js/wedding-config.js -->
         </ol>
-          </div>
-          <figure class="section-split__figure" aria-hidden="true">
-            <img src="images/taylorcj2framed.png" alt="" width="426" height="600" loading="lazy" decoding="async" />
-          </figure>
-        </div>
       </div>
     </section>
 
-    <section id="dress-code" class="section section--dark">
-      <div class="section__inner">
-        <div class="section-split section-split--image-left">
-          <figure class="section-split__figure" aria-hidden="true">
-            <img src="images/taylorcj4framed.png" alt="" loading="lazy" decoding="async" />
-          </figure>
-          <div class="section-split__main">
-            <h2 class="section__title info-headers">Dress Code</h2>
-        <p class="dress-code__label">Formal Attire</p>
-        <div class="prose">
-          <p>
-            Formal attire means:  
-          </p>
-          <p>
-            Men may wear tuxedo or 
-          formal <br>suit and tie.
-          </p>
-          <p>
-            Women may wear long dress, dressy suit, <br>
-            or a formal cocktail dress.
-          </p>
-        </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="section-overlap-lace" aria-hidden="true"></div>
-
-    <section id="rsvp" class="section section--sage">
-      <div class="section__inner">
-        <ul class="action-links">
+    <section class="next-steps" aria-labelledby="next-title">
+      <div class="next-steps__inner">
+        <h2 class="section-title" id="next-title">Before you come</h2>
+        <ul class="next-steps__list">
           <li>
-            <a class="action-link" href="rsvp.html">RSVP</a>
+            <a href="rsvp.html"><span class="next-steps__name">RSVP</span><span class="next-steps__desc">Answer for everyone on your invitation.</span></a>
           </li>
           <li>
-            <a class="action-link" href="registry-list/index.html">Registry</a>
+            <a href="info.html"><span class="next-steps__name">Important information</span><span class="next-steps__desc">Dress code and answers to common questions.</span></a>
           </li>
           <li>
-            <a class="action-link" href="faq.html">FAQs</a>
+            <a href="registry-list/index.html"><span class="next-steps__name">Registry</span><span class="next-steps__desc">Where we're registered.</span></a>
           </li>
         </ul>
-        <p class="rsvp-deadline"><b>Please RSVP by September 21, 2026</b></p>
+        <p class="next-steps__deadline" data-wc-if="rsvp.deadline">Please RSVP by <span data-wc="rsvp.deadline"></span>.</p>
       </div>
     </section>
-
   </main>
 
   <footer class="site-footer">
-    <p class="footer__names">Taylor Carlson &amp; Connor Fornoff</p>
-    <p class="footer__date"><time datetime="2026-10-21">October 21, 2026</time></p>
+    <p class="site-footer__names" data-wc="couple.footerNames">Tabitha Larson &amp; Harrison Graham</p>
   </footer>
+
+  <script type="module" src="js/apply-wedding-config.js"></script>
 </body>
 </html>

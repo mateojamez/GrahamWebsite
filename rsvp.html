@@ -3,41 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Taylor & Connor | R.S.V.P.</title>
+  <title data-wc-title="RSVP">Tabitha & Harrison | RSVP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Corinthia&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body class="rsvp-body">
+<body>
   <header class="site-header">
+    <a class="monogram" href="index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="monogram__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
     <nav class="nav" aria-label="Main">
       <a href="index.html">Home</a>
+      <a href="info.html">Info</a>
       <a href="registry-list/index.html">Registry</a>
-      <a href="rsvp.html" aria-current="page">RSVP</a>
-      <a href="faq.html">FAQs</a>
+      <a class="nav__rsvp" href="rsvp.html" aria-current="page">RSVP</a>
     </nav>
   </header>
 
-  <main class="rsvp-main">
-    <div class="section__inner section__inner--narrow rsvp-page">
-      <h1 class="section__title rsvp-page__title">R.S.V.P.</h1>
+  <main class="page page--narrow">
+    <div class="rsvp">
+      <h1 class="page__title">RSVP</h1>
 
       <div id="rsvp-lookup" class="rsvp-panel">
-        <p class="rsvp-intro">Enter your name as shown on your invitation — first name, last name, or both.</p>
+        <p class="rsvp-intro">Enter your name as it appears on your invitation. First name, last name, or both.</p>
         <form id="form-find" class="rsvp-form">
           <label class="rsvp-field">
             <span class="rsvp-field__label">Name</span>
             <input id="guest-name" class="rsvp-input" type="text" autocomplete="name" placeholder="First name, last name, or full name" required />
           </label>
-          <button type="submit" class="rsvp-btn">Find invitation</button>
+          <button type="submit" class="button">Find invitation</button>
         </form>
       </div>
 
       <div id="rsvp-choose" class="rsvp-panel" hidden>
-        <p class="rsvp-intro">We found more than one match. Please select your invitation:</p>
+        <p class="rsvp-intro">More than one invitation matches that name. Choose yours:</p>
         <ul id="guest-choices" class="rsvp-choices"></ul>
-        <button type="button" id="btn-back-lookup" class="rsvp-btn rsvp-btn--secondary">Search again</button>
+        <button type="button" id="btn-back-lookup" class="button button--quiet">Search again</button>
       </div>
 
       <div id="rsvp-party" class="rsvp-panel" hidden>
@@ -45,8 +46,8 @@
         <form id="form-rsvp" class="rsvp-form rsvp-form--party">
           <div id="guest-fields"></div>
           <div class="rsvp-actions">
-            <button type="submit" class="rsvp-btn">Submit R.S.V.P.</button>
-            <button type="button" id="btn-reset-party" class="rsvp-btn rsvp-btn--secondary">Look up a different invitation</button>
+            <button type="submit" class="button">Send RSVP</button>
+            <button type="button" id="btn-reset-party" class="button button--quiet">Look up a different invitation</button>
           </div>
         </form>
       </div>
@@ -56,10 +57,10 @@
   </main>
 
   <footer class="site-footer">
-    <p class="footer__names">Taylor Carlson &amp; Connor Fornoff</p>
-    <p class="footer__date"><time datetime="2026-10-21">October 21, 2026</time></p>
+    <p class="site-footer__names" data-wc="couple.footerNames">Tabitha Larson &amp; Harrison Graham</p>
   </footer>
 
+  <script type="module" src="js/apply-wedding-config.js"></script>
   <script type="module" src="js/rsvp-app.js"></script>
 </body>
 </html>

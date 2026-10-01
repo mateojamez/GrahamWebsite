@@ -3,90 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Taylor & Connor | RSVP Check</title>
+  <title data-wc-title="RSVP Check">Tabitha & Harrison | RSVP Check</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Corinthia&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/styles.css" />
 </head>
-<body class="rsvpcheck-body">
+<body>
   <header class="site-header">
+    <a class="monogram" href="../index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="monogram__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
     <nav class="nav" aria-label="Main">
       <a href="../index.html">Home</a>
+      <a href="../info.html">Info</a>
       <a href="../registry-list/index.html">Registry</a>
-      <a href="../rsvp.html">RSVP</a>
-      <a href="../faq.html">FAQs</a>
+      <a class="nav__rsvp" href="../rsvp.html">RSVP</a>
     </nav>
   </header>
 
-  <main class="rsvpcheck-main">
-    <section class="section__inner rsvpcheck-page">
+  <main class="page page--wide">
+    <section class="rsvpcheck">
       <div class="rsvpcheck-head">
-        <h1 class="section__title rsvpcheck-title">RSVP Check</h1>
-        <button id="rsvpcheck-refresh" class="rsvp-btn" type="button">Refresh</button>
+        <h1 class="page__title">RSVP Check</h1>
+        <button id="rsvpcheck-refresh" class="button button--quiet" type="button">Refresh</button>
       </div>
-      <p class="rsvp-intro">Guest list vs RSVP status. Dietary restrictions are shown for every guest.</p>
+      <p class="rsvp-intro">Guest list vs RSVP status, per event. Dietary restrictions are shown for every guest.</p>
 
       <div id="rsvpcheck-summary" class="rsvpcheck-summary" aria-live="polite"></div>
       <p id="rsvpcheck-message" class="rsvp-message" role="status" aria-live="polite"></p>
 
-      <div class="rsvpcheck-grid">
-        <section class="rsvpcheck-card">
-          <h2 class="rsvp-party-title">Attending (Yes)</h2>
-          <div class="rsvpcheck-table-wrap">
-            <table class="rsvpcheck-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Party</th>
-                  <th>Dietary Restrictions</th>
-                </tr>
-              </thead>
-              <tbody id="rsvpcheck-attending"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="rsvpcheck-card">
-          <h2 class="rsvp-party-title">Not Attending</h2>
-          <div class="rsvpcheck-table-wrap">
-            <table class="rsvpcheck-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Party</th>
-                  <th>Dietary Restrictions</th>
-                </tr>
-              </thead>
-              <tbody id="rsvpcheck-not-attending"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="rsvpcheck-card">
-          <h2 class="rsvp-party-title">No Response</h2>
-          <div class="rsvpcheck-table-wrap">
-            <table class="rsvpcheck-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Party</th>
-                  <th>Dietary Restrictions</th>
-                </tr>
-              </thead>
-              <tbody id="rsvpcheck-no-response"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
+      <div id="rsvpcheck-events"></div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p class="footer__names">Taylor Carlson &amp; Connor Fornoff</p>
-    <p class="footer__date"><time datetime="2026-10-21">October 21, 2026</time></p>
+    <p class="site-footer__names" data-wc="couple.footerNames">Tabitha Larson &amp; Harrison Graham</p>
   </footer>
 
+  <script type="module" src="../js/apply-wedding-config.js"></script>
   <script type="module" src="../js/rsvp-check.js"></script>
 </body>
 </html>
