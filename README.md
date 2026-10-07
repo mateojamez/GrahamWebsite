@@ -1,4 +1,4 @@
-# Fornoff Wedding - Event Web Platform
+# Graham Wedding - Event Web Platform
 
 Production wedding website built for my friends. The site is the single guest-facing channel for event information, registry discovery, and RSVP capture ahead of a response deadline.
 
@@ -154,12 +154,12 @@ Parent workspace includes a launch configuration that starts Python's static ser
 python -m http.server 8080 --bind 127.0.0.1
 ```
 
-Serve from the `fornoffwedding/` directory, then open `http://localhost:8080`.
+Serve from the `grahamwebsite/` directory, then open `http://localhost:8080`.
 
 **Option B - manual**
 
 ```bash
-cd fornoffwedding
+cd grahamwebsite
 python -m http.server 8080 --bind 127.0.0.1
 ```
 
@@ -199,7 +199,7 @@ The deployable unit is **the static file tree** (HTML, CSS, JS, images). Any sta
 2. Valid Supabase project with populated `parties` / `guests` tables
 3. RLS policies aligned with the anon client's read/write needs
 
-No Docker, CI config, or infrastructure-as-code is checked into this repository. Remote: [github.com/mateojamez/FornoffsWebsite](https://github.com/mateojamez/FornoffsWebsite).
+No Docker, CI config, or infrastructure-as-code is checked into this repository. Remote: [github.com/mateojamez/GrahamWebsite](https://github.com/mateojamez/GrahamWebsite).
 
 ---
 
@@ -225,4 +225,4 @@ Development proceeded in iterative passes with direct stakeholder feedback (comm
 
 ## License
 
-Private project for the Fornoff/Carlson wedding. All photography and copy are personal; not licensed for reuse.
+Private project for the Larson/Graham wedding. All photography and copy are personal; not licensed for reuse.
