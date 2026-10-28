@@ -26,8 +26,7 @@ const events = [
     rsvp: true,
     primary: false,
     note: "By invitation only",
-    // TODO: confirm date with Harrison (the master doc implies the same day as the reception)
-    date: { iso: "2027-01-15", display: "Friday, January 15, 2027" },
+    date: { iso: "2027-01-16", display: "Saturday, January 16, 2027" },
     time: "10:30 AM – 12:00 PM",
     venue: {
       name: "Val Vista Lakes Clubhouse",
@@ -43,9 +42,13 @@ const events = [
     rsvp: false,
     primary: false,
     note: "By invitation. Family and the wedding party stay after for photos on the temple grounds.",
-    date: { iso: "", display: "Date to come" }, // TODO: same day as the reception?
+    date: { iso: "2027-01-16", display: "Saturday, January 16, 2027" },
     time: "", // TODO: master doc says "3 pm?"; confirm before showing it
-    venue: { name: "Gilbert Arizona Temple", addressLine1: "", addressLine2: "Gilbert, AZ" },
+    venue: {
+      name: "Gilbert Arizona Temple",
+      addressLine1: "3301 S Greenfield Rd",
+      addressLine2: "Gilbert, AZ 85297",
+    },
     timeline: [],
   },
   {
@@ -55,10 +58,10 @@ const events = [
     rsvp: true,
     primary: true,
     note: "",
-    // TODO: confirm date with Harrison
     date: { iso: "2027-01-16", display: "Saturday, January 16, 2027" },
     time: "7:00 PM",
-    venue: { name: "", addressLine1: "", addressLine2: "" }, // TODO: church address
+    // TODO: the church's name, to show above the street address
+    venue: { name: "2334 E Pueblo Ave", addressLine1: "", addressLine2: "Mesa, AZ 85204" },
     timeline: [],
   },
 ];
