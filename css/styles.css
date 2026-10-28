@@ -3,11 +3,9 @@
  * The site reads as a picture book: a vellum page, an old-print display face,
  * gilt rules, and watercolor decals painted into the margins.
  *
- * Decals use mix-blend-mode: multiply so their white watercolor washes take on
- * the paper color. The base colors can be overridden from WEDDING.theme
- * (js/wedding-config.js). Multiply only works when no ancestor between the decal and
- * the page creates a stacking context, so avoid transform, opacity, filter, or
- * z-index on a decal's ancestors.
+ * The decals in images/ have their white converted to transparency, so they
+ * sit on any background and cover the gilt lines they overlap. The base colors
+ * can be overridden from WEDDING.theme (js/wedding-config.js).
  */
 
 :root {
@@ -82,7 +80,6 @@ a:hover {
 .decal {
   position: absolute;
   height: auto;
-  mix-blend-mode: multiply;
   pointer-events: none;
   user-select: none;
 }
@@ -326,13 +323,33 @@ a:hover {
 /* ---------- Chapters (the schedule) ---------- */
 
 .chapters {
+  position: relative;
   padding: clamp(3rem, 8vw, 5.5rem) var(--gutter);
   border-top: 1px solid var(--vellum-deep);
 }
 
+/* The heading spans two columns: the schedule, then the stairs beside it. */
 .chapters__inner {
-  max-width: 40rem;
+  max-width: 64rem;
   margin: 0 auto;
+}
+
+.chapters__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 40rem) minmax(0, 1fr);
+  gap: 0 clamp(1.5rem, 4vw, 3rem);
+}
+
+/* The wrapper takes the row's height from the schedule; the stairs stretch to fill it. */
+.chapters__art {
+  position: relative;
+}
+
+.decal--stairs {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
 }
 
 .chapter-list {
@@ -471,10 +488,11 @@ a:hover {
   width: clamp(150px, 26vw, 310px);
 }
 
-.decal--path {
-  bottom: clamp(-6.5rem, -9vw, -4.5rem);
-  left: clamp(-15rem, -20vw, -3rem);
-  width: clamp(130px, 21vw, 223px);
+/* Mirrors the arch: same height, same top, same distance from the text. */
+.decal--brick {
+  top: clamp(-3.5rem, -6vw, -1.5rem);
+  left: clamp(-17rem, -22vw, -4rem);
+  width: clamp(150px, 26vw, 310px);
 }
 
 /* ---------- Footer ---------- */
@@ -917,6 +935,21 @@ select.rsvp-input {
 
 /* ---------- Small screens ---------- */
 
+/* Below this width the schedule needs the whole row, so the stairs column drops. */
+@media (max-width: 900px) {
+  .chapters__inner {
+    max-width: 40rem;
+  }
+
+  .chapters__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chapters__art {
+    display: none;
+  }
+}
+
 @media (max-width: 720px) {
   .decal--dragon {
     right: -0.5rem;
@@ -951,10 +984,10 @@ select.rsvp-input {
     width: 120px;
   }
 
-  .decal--path {
-    left: -1.5rem;
-    bottom: -5.5rem;
-    width: 110px;
+  .decal--brick {
+    left: -2.5rem;
+    top: -4rem;
+    width: 120px;
   }
 
   .page .decal--ivy,
