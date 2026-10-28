@@ -92,6 +92,49 @@ function renderSchedule() {
   root.replaceChildren(...WEDDING.events.filter((e) => e.public).map(renderChapter));
 }
 
+/** A Google Maps search for the venue, or null when it has no address yet. */
+function directionsUrl(venue) {
+  if (!venue?.addressLine2) return null;
+  const parts = [venue.name, venue.addressLine1, venue.addressLine2].filter(Boolean);
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`;
+}
+
+/** The directions list under the map, and the links on the map's landmarks. */
+function renderDirections() {
+  const events = WEDDING.events.filter((e) => e.public);
+
+  document.querySelectorAll("[data-wc-map-link]").forEach((link) => {
+    const event = events.find((e) => e.slug === link.getAttribute("data-wc-map-link"));
+    const url = event && directionsUrl(event.venue);
+    if (url) {
+      link.setAttribute("href", url);
+      link.setAttribute("aria-label", `Directions to the ${event.name}`);
+    }
+  });
+
+  const root = document.querySelector("[data-wc-directions]");
+  if (!root) return;
+  root.replaceChildren(
+    ...events.map((event, index) => {
+      const url = directionsUrl(event.venue);
+      return h(
+        "li",
+        { class: "realm__stop" },
+        h("span", { class: "realm__stop-num", "aria-hidden": "true" }, ROMAN[index] ?? String(index + 1)),
+        h(
+          "div",
+          {},
+          h("p", { class: "realm__stop-name" }, event.name),
+          h("p", { class: "realm__stop-venue" }, event.venue?.name || "Location coming soon"),
+          url
+            ? h("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, "Get directions")
+            : null
+        )
+      );
+    })
+  );
+}
+
 function renderDressCode() {
   const root = document.querySelector("[data-wc-dress]");
   if (!root) return;
@@ -168,6 +211,7 @@ function init() {
   applyAttrs();
   applyConditionals();
   renderSchedule();
+  renderDirections();
   renderDressCode();
   renderFaqs();
   renderRegistry();

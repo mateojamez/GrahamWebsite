@@ -8,10 +8,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="images/crest.svg" type="image/svg+xml" />
 </head>
 <body>
   <header class="site-header">
-    <a class="seal" href="index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="seal__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
+    <a class="seal" href="index.html" aria-label="Home">
+      <svg class="crest" viewBox="0 0 64 76" aria-hidden="true">
+        <path d="M14 15 L12 4 L22 10 L32 2 L42 10 L52 4 L50 15 Z" class="crest__crown" />
+        <path d="M8 17 H56 V40 C56 58 44 68 32 74 C20 68 8 58 8 40 Z" class="crest__shield" />
+        <path d="M12 21 H52 V40 C52 55 42 63.5 32 69 C22 63.5 12 55 12 40 Z" class="crest__inner" />
+        <text x="32" y="50" class="crest__letters"><tspan data-wc="couple.partnerA.first.0">T</tspan><tspan class="crest__amp">&amp;</tspan><tspan data-wc="couple.partnerB.first.0">H</tspan></text>
+      </svg>
+    </a>
     <nav class="nav" aria-label="Main">
       <a href="info.html">Details</a>
       <a href="registry-list/index.html">Registry</a>
@@ -21,20 +29,60 @@
 
   <main>
     <section class="title-page" aria-labelledby="names">
-      <div class="title-page__frame">
+      <div class="fireflies" data-fireflies aria-hidden="true"></div>
+      <div class="book" data-book>
+        <div class="book__pages">
+          <div class="book__leaf book__cover is-current" data-leaf>
+            <p class="title-page__kicker">Here begins the tale of</p>
+            <h1 class="title-page__names" id="names">
+              <span data-wc="couple.partnerA.first">Tabitha</span>
+              <span class="title-page__amp" aria-label="and">&amp;</span>
+              <span data-wc="couple.partnerB.first">Harrison</span>
+            </h1>
+            <hr class="title-page__rule" />
+            <p class="title-page__date"><time data-wc="date.display" data-wc-attr="datetime:date.iso">Saturday, January 16, 2027</time></p>
+            <p class="title-page__place" data-wc="city">Gilbert, Arizona</p>
+            <a class="button button--seal" href="rsvp.html">RSVP</a>
+          </div>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-1.webp" alt="Tabitha and Harrison sitting back to back on a railing" width="1200" height="800" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">i</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-2.webp" alt="Tabitha posing with arms flung wide in front of Harrison, by a blue spruce" width="880" height="1200" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">ii</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-3.webp" alt="Tabitha riding piggyback on Harrison in front of a blue spruce" width="1200" height="800" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">iii</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-4.webp" alt="Tabitha and Harrison in the snow beside a snowman" width="1200" height="900" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">iv</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-5.webp" alt="Tabitha and Harrison hugging among glowing lantern sculptures" width="810" height="1200" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">v</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-6.webp" alt="Tabitha and Harrison cheek to cheek under green leaves" width="900" height="1200" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">vi</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-7.webp" alt="Tabitha and Harrison smiling under a cloudy blue sky" width="900" height="1200" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">vii</figcaption>
+          </figure>
+          <figure class="book__leaf book__page" data-leaf>
+            <img src="images/book/page-8.webp" alt="Tabitha's hand with an engagement ring, resting on Harrison's chest" width="800" height="1200" loading="lazy" />
+            <figcaption class="book__folio" aria-hidden="true">viii</figcaption>
+          </figure>
+        </div>
         <img class="decal decal--dragon" src="images/dragon.webp" alt="" width="173" height="244" />
         <img class="decal decal--hydrangea" src="images/ruin-hydrangea.webp" alt="" width="152" height="153" />
-        <p class="title-page__kicker">Here begins the tale of</p>
-        <h1 class="title-page__names" id="names">
-          <span data-wc="couple.partnerA.first">Tabitha</span>
-          <span class="title-page__amp" aria-label="and">&amp;</span>
-          <span data-wc="couple.partnerB.first">Harrison</span>
-        </h1>
-        <hr class="title-page__rule" />
-        <p class="title-page__date"><time data-wc="date.display" data-wc-attr="datetime:date.iso">Saturday, January 16, 2027</time></p>
-        <p class="title-page__place" data-wc="city">Gilbert, Arizona</p>
-        <a class="button" href="rsvp.html">RSVP</a>
+        <button class="book__turn book__turn--prev" type="button" data-book-prev aria-label="Previous page" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19" /></svg></button>
+        <button class="book__turn book__turn--next" type="button" data-book-next aria-label="Next page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 L16 12 L9 19" /></svg></button>
       </div>
+      <p class="book__status" data-book-status aria-live="polite">Turn the page for more of the story</p>
     </section>
 
     <section class="chapters" aria-labelledby="chapters-title">
@@ -49,6 +97,141 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section class="realm" aria-labelledby="realm-title">
+      <h2 class="heading" id="realm-title">A map of the realm</h2>
+      <figure class="realm__map">
+        <svg viewBox="0 0 1000 620" role="img" aria-labelledby="realm-map-title">
+          <title id="realm-map-title">An illustrated map of the three venues, from the Salt River in the north to the Superstition Mountains in the east. The map is not to scale.</title>
+          <defs>
+            <filter id="realm-rough">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" />
+              <feDisplacementMap in="SourceGraphic" scale="3.5" />
+            </filter>
+            <symbol id="realm-tree" viewBox="0 0 20 28">
+              <path d="M10 1 C4 7 2 13 4 18 C6 21 14 21 16 18 C18 13 16 7 10 1 Z" fill="#8fa37c" />
+              <path d="M10 6 V27" stroke="#4b5b4d" stroke-width="1.4" />
+            </symbol>
+            <symbol id="realm-peak" viewBox="0 0 80 60">
+              <path d="M2 58 L40 4 L78 58" fill="#e2d9bf" stroke="#4b5b4d" stroke-width="2" stroke-linejoin="round" />
+              <path d="M40 4 L46 26 L40 22 L36 34" fill="none" stroke="#4b5b4d" stroke-width="1.5" />
+              <path d="M52 34 L58 44 M60 40 L66 50" stroke="#4b5b4d" stroke-width="1.2" />
+            </symbol>
+          </defs>
+
+          <!-- Parchment and its double gilt border -->
+          <rect x="4" y="4" width="992" height="612" rx="6" fill="#ece5cf" stroke="#a8843a" stroke-width="2" />
+          <rect x="16" y="16" width="968" height="588" rx="3" fill="none" stroke="#cdb47a" stroke-width="1" />
+
+          <g filter="url(#realm-rough)">
+            <!-- The Salt River across the north -->
+            <path id="realm-river" d="M16 118 C120 90 210 150 330 120 C450 90 520 60 640 92 C760 124 860 70 984 84" fill="none" stroke="#8ea3b3" stroke-width="9" stroke-linecap="round" />
+            <path d="M16 118 C120 90 210 150 330 120 C450 90 520 60 640 92 C760 124 860 70 984 84" fill="none" stroke="#c9d4da" stroke-width="2.5" stroke-dasharray="14 18" />
+
+            <!-- The Superstition Mountains in the east -->
+            <use href="#realm-peak" x="790" y="170" width="110" height="82" />
+            <use href="#realm-peak" x="860" y="200" width="100" height="74" />
+            <use href="#realm-peak" x="820" y="250" width="120" height="90" />
+            <use href="#realm-peak" x="900" y="290" width="80" height="60" />
+            <use href="#realm-peak" x="790" y="320" width="90" height="68" />
+
+            <!-- Woods -->
+            <use href="#realm-tree" x="120" y="200" width="26" height="36" />
+            <use href="#realm-tree" x="146" y="214" width="22" height="31" />
+            <use href="#realm-tree" x="100" y="226" width="24" height="34" />
+            <use href="#realm-tree" x="210" y="430" width="24" height="34" />
+            <use href="#realm-tree" x="236" y="446" width="20" height="28" />
+            <use href="#realm-tree" x="188" y="452" width="22" height="31" />
+            <use href="#realm-tree" x="560" y="240" width="22" height="31" />
+            <use href="#realm-tree" x="584" y="252" width="20" height="28" />
+            <use href="#realm-tree" x="700" y="390" width="22" height="31" />
+            <use href="#realm-tree" x="724" y="402" width="20" height="28" />
+            <use href="#realm-tree" x="470" y="520" width="22" height="31" />
+            <use href="#realm-tree" x="494" y="530" width="20" height="28" />
+
+            <!-- The lakes beside the clubhouse -->
+            <path d="M330 340 C350 318 396 322 404 344 C412 366 378 382 352 376 C330 371 318 356 330 340 Z" fill="#c9d4da" stroke="#8ea3b3" stroke-width="2" />
+            <path d="M300 392 C312 380 336 384 336 398 C336 410 314 414 304 408 C296 403 294 398 300 392 Z" fill="#c9d4da" stroke="#8ea3b3" stroke-width="2" />
+
+            <!-- The road, from the first chapter to the last -->
+            <path d="M440 352 C520 380 580 420 640 448 M640 448 C600 380 540 300 470 250 C440 228 420 214 404 200" fill="none" stroke="#a8843a" stroke-width="2.5" stroke-dasharray="2 9" stroke-linecap="round" />
+          </g>
+
+          <!-- Town names -->
+          <text class="realm__town" x="190" y="186">Mesa</text>
+          <text class="realm__town" x="520" y="590">Gilbert</text>
+          <text class="realm__river"><textPath href="#realm-river" startOffset="12%">The Salt River</textPath></text>
+          <text class="realm__note" x="872" y="410" text-anchor="middle">The Superstition</text>
+          <text class="realm__note" x="872" y="432" text-anchor="middle">Mountains</text>
+          <text class="realm__dragons" x="900" y="150" text-anchor="middle">Here be dragons</text>
+
+          <!-- I. The clubhouse by the lakes -->
+          <a data-wc-map-link="ring-ceremony" target="_blank" rel="noopener noreferrer">
+            <g class="realm__place">
+              <path d="M424 356 V330 L442 314 L460 330 V356 Z" fill="#f3efe2" stroke="#1e3527" stroke-width="2" stroke-linejoin="round" />
+              <path d="M418 334 L442 310 L466 334" fill="none" stroke="#1e3527" stroke-width="2.5" stroke-linejoin="round" />
+              <rect x="437" y="340" width="10" height="16" fill="#5b4a7f" />
+              <circle cx="400" cy="300" r="15" fill="#a8843a" />
+              <text class="realm__num" x="400" y="306">I</text>
+              <text class="realm__label" x="442" y="384" text-anchor="middle">The Clubhouse</text>
+              <text class="realm__label" x="442" y="406" text-anchor="middle">by the Lakes</text>
+            </g>
+          </a>
+
+          <!-- II. The temple -->
+          <a data-wc-map-link="temple" target="_blank" rel="noopener noreferrer">
+            <g class="realm__place">
+              <path d="M616 470 V440 H664 V470 Z" fill="#f3efe2" stroke="#1e3527" stroke-width="2" />
+              <path d="M630 440 V420 H650 V440" fill="#f3efe2" stroke="#1e3527" stroke-width="2" />
+              <path d="M634 420 L640 384 L646 420 Z" fill="#f3efe2" stroke="#1e3527" stroke-width="2" stroke-linejoin="round" />
+              <circle cx="640" cy="380" r="3" fill="#a8843a" />
+              <path d="M626 470 V452 M640 470 V452 M654 470 V452" stroke="#1e3527" stroke-width="1.5" />
+              <circle cx="688" cy="416" r="15" fill="#a8843a" />
+              <text class="realm__num" x="688" y="422">II</text>
+              <text class="realm__label" x="640" y="498" text-anchor="middle">The Temple</text>
+            </g>
+          </a>
+
+          <!-- III. The hall of the reception -->
+          <a data-wc-map-link="reception" target="_blank" rel="noopener noreferrer">
+            <g class="realm__place">
+              <path d="M372 210 V176 H436 V210 Z" fill="#f3efe2" stroke="#1e3527" stroke-width="2" />
+              <path d="M362 210 V160 H382 V210 M426 210 V160 H446 V210" fill="#f3efe2" stroke="#1e3527" stroke-width="2" />
+              <path d="M362 160 V154 H367 V160 M372 160 V154 H377 V160 M426 160 V154 H431 V160 M436 160 V154 H441 V160" fill="none" stroke="#1e3527" stroke-width="2" />
+              <path d="M396 210 V194 C396 186 412 186 412 194 V210" fill="#5b4a7f" />
+              <path d="M372 154 V136 L388 141 L372 146" fill="#a693c9" stroke="#1e3527" stroke-width="1.5" />
+              <path d="M436 154 V136 L452 141 L436 146" fill="#a693c9" stroke="#1e3527" stroke-width="1.5" />
+              <circle cx="476" cy="168" r="15" fill="#a8843a" />
+              <text class="realm__num" x="476" y="174">III</text>
+              <text class="realm__label" x="404" y="236" text-anchor="middle">The Hall of Revels</text>
+            </g>
+          </a>
+
+          <!-- Compass rose -->
+          <g transform="translate(110 520)">
+            <circle r="44" fill="none" stroke="#cdb47a" stroke-width="1" />
+            <circle r="34" fill="none" stroke="#a8843a" stroke-width="1" />
+            <path d="M0 -50 L7 -7 L0 0 Z" fill="#1e3527" />
+            <path d="M0 -50 L-7 -7 L0 0 Z" fill="#4b5b4d" />
+            <path d="M0 50 L7 7 L0 0 Z" fill="#cdb47a" />
+            <path d="M0 50 L-7 7 L0 0 Z" fill="#a8843a" />
+            <path d="M50 0 L7 7 L0 0 Z M-50 0 L-7 -7 L0 0 Z" fill="#a8843a" />
+            <path d="M50 0 L7 -7 L0 0 Z M-50 0 L-7 7 L0 0 Z" fill="#cdb47a" />
+            <text class="realm__compass" y="-56">N</text>
+          </g>
+
+          <!-- Cartouche -->
+          <g transform="translate(800 548)">
+            <path d="M-150 -26 H150 L136 0 L150 26 H-150 L-136 0 Z" fill="#f3efe2" stroke="#a8843a" stroke-width="1.5" />
+            <text class="realm__title" y="8">The Realm of Gilbert &amp; Mesa</text>
+          </g>
+        </svg>
+        <figcaption class="realm__caption">Not to scale. Tap a landmark, or use the directions below.</figcaption>
+      </figure>
+      <ol class="realm__legend" data-wc-directions>
+        <!-- Rendered from WEDDING.events by js/apply-wedding-config.js -->
+      </ol>
     </section>
 
     <section class="provisions" aria-labelledby="provisions-title">
@@ -78,12 +261,18 @@
         <img class="decal decal--brick" src="images/ruin-hydrangea.webp" alt="" width="152" height="153" />
         <h2 class="heading" id="finale-title">Will you join us?</h2>
         <p>Kindly reply by <span data-wc="rsvp.deadline">December 1, 2026</span>. Replies we haven't received by then count as a no.</p>
-        <a class="button" href="rsvp.html">RSVP</a>
+        <a class="button button--seal" href="rsvp.html">RSVP</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
+    <svg class="crest crest--footer" viewBox="0 0 64 76" aria-hidden="true">
+          <path d="M14 15 L12 4 L22 10 L32 2 L42 10 L52 4 L50 15 Z" class="crest__crown" />
+          <path d="M8 17 H56 V40 C56 58 44 68 32 74 C20 68 8 58 8 40 Z" class="crest__shield" />
+          <path d="M12 21 H52 V40 C52 55 42 63.5 32 69 C22 63.5 12 55 12 40 Z" class="crest__inner" />
+          <text x="32" y="50" class="crest__letters"><tspan data-wc="couple.partnerA.first.0">T</tspan><tspan class="crest__amp">&amp;</tspan><tspan data-wc="couple.partnerB.first.0">H</tspan></text>
+    </svg>
     <p class="site-footer__end">And they lived happily ever after.</p>
     <p class="site-footer__names" data-wc="couple.footerNames">Tabitha Larson &amp; Harrison Graham</p>
   </footer>
@@ -91,5 +280,7 @@
   <script type="module" src="js/apply-wedding-config.js"></script>
   <script type="module" src="js/site-header.js"></script>
   <script type="module" src="js/schedule-photo.js"></script>
+  <script type="module" src="js/fireflies.js"></script>
+  <script type="module" src="js/picture-book.js"></script>
 </body>
 </html>

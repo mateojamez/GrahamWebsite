@@ -5,3 +5,6 @@ node_modules/
 .env.local
 *.log
 .superpowers/
+
+# Full-size originals of the couple photos; the site uses web copies in images/.
+photos/

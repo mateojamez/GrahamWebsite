@@ -8,10 +8,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="images/crest.svg" type="image/svg+xml" />
 </head>
 <body>
   <header class="site-header">
-    <a class="seal" href="index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="seal__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
+    <a class="seal" href="index.html" aria-label="Home">
+      <svg class="crest" viewBox="0 0 64 76" aria-hidden="true">
+        <path d="M14 15 L12 4 L22 10 L32 2 L42 10 L52 4 L50 15 Z" class="crest__crown" />
+        <path d="M8 17 H56 V40 C56 58 44 68 32 74 C20 68 8 58 8 40 Z" class="crest__shield" />
+        <path d="M12 21 H52 V40 C52 55 42 63.5 32 69 C22 63.5 12 55 12 40 Z" class="crest__inner" />
+        <text x="32" y="50" class="crest__letters"><tspan data-wc="couple.partnerA.first.0">T</tspan><tspan class="crest__amp">&amp;</tspan><tspan data-wc="couple.partnerB.first.0">H</tspan></text>
+      </svg>
+    </a>
     <nav class="nav" aria-label="Main">
       <a href="info.html" aria-current="page">Details</a>
       <a href="registry-list/index.html">Registry</a>
@@ -39,6 +47,12 @@
   </main>
 
   <footer class="site-footer">
+    <svg class="crest crest--footer" viewBox="0 0 64 76" aria-hidden="true">
+          <path d="M14 15 L12 4 L22 10 L32 2 L42 10 L52 4 L50 15 Z" class="crest__crown" />
+          <path d="M8 17 H56 V40 C56 58 44 68 32 74 C20 68 8 58 8 40 Z" class="crest__shield" />
+          <path d="M12 21 H52 V40 C52 55 42 63.5 32 69 C22 63.5 12 55 12 40 Z" class="crest__inner" />
+          <text x="32" y="50" class="crest__letters"><tspan data-wc="couple.partnerA.first.0">T</tspan><tspan class="crest__amp">&amp;</tspan><tspan data-wc="couple.partnerB.first.0">H</tspan></text>
+    </svg>
     <p class="site-footer__end">And they lived happily ever after.</p>
     <p class="site-footer__names" data-wc="couple.footerNames">Tabitha Larson &amp; Harrison Graham</p>
   </footer>
