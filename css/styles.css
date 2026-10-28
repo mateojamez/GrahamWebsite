@@ -335,6 +335,13 @@ a:hover {
   line-height: 1.15;
 }
 
+.stem__note {
+  margin: 0 0 0.75rem;
+  max-width: var(--measure);
+  color: var(--lavender-ink);
+  font-style: italic;
+}
+
 .stem__venue {
   font-style: normal;
 }
@@ -452,6 +459,24 @@ a:hover {
 .prose p {
   margin: 0 0 1rem;
   max-width: var(--measure);
+}
+
+.prose h3 {
+  margin: 2rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.prose ul {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  max-width: var(--measure);
+}
+
+.prose li + li {
+  margin-top: 0.5rem;
 }
 
 /* Important information */

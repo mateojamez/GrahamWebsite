@@ -68,6 +68,7 @@ function renderEvent(event) {
       event.time ? h("span", { class: "stem__time" }, event.time) : null
     ),
     h("h3", { class: "stem__name" }, event.name),
+    event.note ? h("p", { class: "stem__note" }, event.note) : null,
     hasVenue
       ? h(
           "address",
