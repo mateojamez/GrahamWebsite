@@ -26,22 +26,25 @@ The RSVP path replaces manual tracking (texts, spreadsheets) with **idempotent w
 ## Repository layout
 
 ```
-├── index.html              # Home: hero, story, timeline, dress code, CTAs
+├── index.html              # Home: title page, schedule, before-you-arrive, RSVP call
+├── info.html               # Details: dress code and FAQs (native <details>)
 ├── rsvp.html               # RSVP shell + progressive panels
-├── faq.html                # Accessible FAQ (native <details>)
 ├── css/
-│   ├── styles.css          # Shared design system + rsvpcheck styles
-│   └── registry-list.css   # Registry hub theme
+│   └── styles.css          # Storybook design system + rsvpcheck styles
 ├── js/
-│   ├── rsvp-app.js         # Guest lookup, party load, upsert logic
-│   ├── rsvp-check.js       # Dashboard: guests vs RSVP status
-│   └── supabase-config.js  # Project URL + anon key
+│   ├── wedding-config.js        # Single source of truth for wedding details
+│   ├── apply-wedding-config.js  # Renders config into every page
+│   ├── rsvp-app.js              # Guest lookup, party load, upsert logic
+│   ├── rsvp-check.js            # Dashboard: guests vs RSVP status
+│   └── supabase-config.js       # Project URL + anon key
 ├── registry-list/
-│   └── index.html          # Registry hub (Amazon, Target, Venmo links)
+│   └── index.html          # Registry links from the config
 ├── rsvpcheck/
 │   └── index.html          # Unlisted couple dashboard (not in main nav)
-├── images/                 # Photography and brand assets only
-├── .gitignore
+├── images/                 # Watercolor decals, cropped and cleaned for the web
+├── reference-decals/       # Source decal art
+├── reference-mockups/      # Design reference
+├── supabase/schema.sql
 └── README.md
 ```
 

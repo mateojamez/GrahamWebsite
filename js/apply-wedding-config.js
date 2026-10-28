@@ -53,80 +53,69 @@ function applyConditionals() {
   });
 }
 
-function renderEvent(event) {
-  const { venue } = event;
-  const hasVenue = venue && venue.name;
-  const timeline = event.timeline ?? [];
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 
+/** One event, rendered as a numbered chapter of the day. */
+function renderChapter(event, index) {
+  const { venue } = event;
   return h(
     "li",
-    { class: "stem__event", id: `event-${event.slug}` },
+    { class: "chapter", id: `event-${event.slug}` },
+    h("span", { class: "chapter__num", "aria-hidden": "true" }, ROMAN[index] ?? String(index + 1)),
     h(
-      "p",
-      { class: "stem__when" },
-      h("time", { datetime: event.date.iso || null }, event.date.display),
-      event.time ? h("span", { class: "stem__time" }, event.time) : null
-    ),
-    h("h3", { class: "stem__name" }, event.name),
-    event.note ? h("p", { class: "stem__note" }, event.note) : null,
-    hasVenue
-      ? h(
-          "address",
-          { class: "stem__venue" },
-          h("strong", {}, venue.name),
-          venue.addressLine1 ? [h("br"), venue.addressLine1] : null,
-          venue.addressLine2 ? [h("br"), venue.addressLine2] : null
-        )
-      : h("p", { class: "stem__pending" }, "Location coming soon"),
-    timeline.length
-      ? h(
-          "ol",
-          { class: "stem__timeline", "aria-label": `Schedule for the ${event.name.toLowerCase()}` },
-          timeline.map((item) => h("li", {}, h("span", { class: "stem__timeline-time" }, item.time), " ", item.label))
-        )
-      : null
+      "div",
+      { class: "chapter__body" },
+      h(
+        "p",
+        { class: "chapter__when" },
+        h("time", { datetime: event.date.iso || null }, event.date.display),
+        event.time ? h("span", { class: "chapter__time" }, event.time) : null
+      ),
+      h("h3", { class: "chapter__name" }, event.name),
+      event.note ? h("p", { class: "chapter__note" }, event.note) : null,
+      venue && venue.name
+        ? h(
+            "address",
+            { class: "chapter__venue" },
+            h("strong", {}, venue.name),
+            venue.addressLine1 ? [h("br"), venue.addressLine1] : null,
+            venue.addressLine2 ? [h("br"), venue.addressLine2] : null
+          )
+        : h("p", { class: "pending" }, "Location coming soon")
+    )
   );
 }
 
 function renderSchedule() {
   const root = document.querySelector("[data-wc-schedule]");
   if (!root) return;
-  root.replaceChildren(...WEDDING.events.filter((e) => e.public).map(renderEvent));
+  root.replaceChildren(...WEDDING.events.filter((e) => e.public).map(renderChapter));
 }
 
-function renderInfo() {
-  const root = document.querySelector("[data-wc-info]");
+function renderDressCode() {
+  const root = document.querySelector("[data-wc-dress]");
   if (!root) return;
-  const { dressCode, faqs } = WEDDING.info;
-
-  const dress = h(
-    "section",
-    { class: "info-block", "aria-labelledby": "info-dress" },
-    h("h2", { class: "info-block__title", id: "info-dress" }, "Dress code"),
-    dressCode
-      ? [h("p", { class: "info-block__lead" }, dressCode.label), h("div", { class: "prose", html: dressCode.html })]
-      : h("p", { class: "stem__pending" }, "Dress code details coming soon")
+  const { dressCode } = WEDDING.info;
+  root.replaceChildren(
+    ...(dressCode
+      ? [h("p", { class: "lead" }, dressCode.label), h("div", { class: "prose", html: dressCode.html })]
+      : [h("p", { class: "pending" }, "Dress code details coming soon")])
   );
+}
 
-  const faq = h(
-    "section",
-    { class: "info-block", "aria-labelledby": "info-faq" },
-    h("h2", { class: "info-block__title", id: "info-faq" }, "Good to know"),
-    h(
-      "div",
-      { class: "faq-list" },
-      faqs.map((item) =>
-        h(
-          "details",
-          { class: "faq-item" },
-          h("summary", { class: "faq-item__question" }, item.question),
-          h("p", { class: "faq-item__answer", html: item.html })
-        )
+function renderFaqs() {
+  const root = document.querySelector("[data-wc-faqs]");
+  if (!root) return;
+  root.replaceChildren(
+    ...WEDDING.info.faqs.map((item) =>
+      h(
+        "details",
+        { class: "faq" },
+        h("summary", { class: "faq__q" }, item.question),
+        h("p", { class: "faq__a", html: item.html })
       )
     )
   );
-
-  root.replaceChildren(dress, faq);
 }
 
 function renderRegistry() {
@@ -139,28 +128,29 @@ function renderRegistry() {
     links.length
       ? h(
           "ul",
-          { class: "registry__list" },
+          { class: "registry__links" },
           links.map((link) =>
             h(
               "li",
               {},
               h(
                 "a",
-                { class: "registry__link", href: link.href, target: "_blank", rel: "noopener noreferrer" },
-                link.label
+                { class: "button", href: link.href, target: "_blank", rel: "noopener noreferrer" },
+                `Open our ${link.label} registry`
               )
             )
           )
         )
-      : h("p", { class: "stem__pending" }, "Registry links coming soon")
+      : h("p", { class: "pending" }, "Registry links coming soon")
   );
 }
 
 const THEME_CSS_VARS = {
-  colorVanilla: "--vanilla",
-  colorGreen: "--green",
+  colorVellum: "--vellum",
+  colorInk: "--ink",
   colorSage: "--sage",
   colorLavender: "--lavender",
+  colorGilt: "--gilt",
 };
 
 function applyTheme() {
@@ -178,7 +168,8 @@ function init() {
   applyAttrs();
   applyConditionals();
   renderSchedule();
-  renderInfo();
+  renderDressCode();
+  renderFaqs();
   renderRegistry();
   applyTheme();
 }

@@ -1,7 +1,7 @@
 /**
  * Single source of truth for wedding-specific details.
  * js/apply-wedding-config.js reads these values into every page on load and
- * renders the schedule, important-information, and registry sections from them.
+ * renders the schedule, dress code, FAQ, and registry sections from them.
  *
  * Event flags:
  * - `public: true`  — the event appears in the schedule on index.html.
@@ -160,12 +160,13 @@ export const WEDDING = {
     links: [{ label: "Amazon", href: "https://www.amazon.com/wedding/share/HarrisonAndTabitha" }],
   },
 
-  // Mirrors the CSS custom properties in :root (css/styles.css). A value here
-  // overrides that variable site-wide once apply-wedding-config.js runs.
+  // Mirrors the base CSS custom properties in :root (css/styles.css). A value
+  // here overrides that variable site-wide once apply-wedding-config.js runs.
   theme: {
-    colorVanilla: "#f7f0dc",
-    colorGreen: "#203a2b",
-    colorSage: "#9caf88",
-    colorLavender: "#b7a6d6",
+    colorVellum: "#f3efe2",
+    colorInk: "#1e3527",
+    colorSage: "#8fa37c",
+    colorLavender: "#a693c9",
+    colorGilt: "#a8843a",
   },
 };

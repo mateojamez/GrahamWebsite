@@ -6,57 +6,57 @@
   <title data-wc-title="RSVP">Tabitha & Harrison | RSVP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Jost:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="monogram" href="index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="monogram__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
+    <a class="seal" href="index.html" aria-label="Home"><span data-wc="couple.partnerA.first.0">T</span><span class="seal__amp">&amp;</span><span data-wc="couple.partnerB.first.0">H</span></a>
     <nav class="nav" aria-label="Main">
       <a href="index.html">Home</a>
-      <a href="info.html">Info</a>
+      <a href="info.html">Details</a>
       <a href="registry-list/index.html">Registry</a>
       <a class="nav__rsvp" href="rsvp.html" aria-current="page">RSVP</a>
     </nav>
   </header>
 
-  <main class="page page--narrow">
-    <div class="rsvp">
-      <h1 class="page__title">RSVP</h1>
+  <main class="page">
+    <img class="decal decal--path" src="images/path.webp" alt="" width="223" height="238" />
+    <h1 class="page__title">RSVP</h1>
 
-      <div id="rsvp-lookup" class="rsvp-panel">
-        <p class="rsvp-intro">Enter your name as it appears on your invitation. First name, last name, or both.</p>
-        <form id="form-find" class="rsvp-form">
-          <label class="rsvp-field">
-            <span class="rsvp-field__label">Name</span>
-            <input id="guest-name" class="rsvp-input" type="text" autocomplete="name" placeholder="First name, last name, or full name" required />
-          </label>
-          <button type="submit" class="button">Find invitation</button>
-        </form>
-      </div>
-
-      <div id="rsvp-choose" class="rsvp-panel" hidden>
-        <p class="rsvp-intro">More than one invitation matches that name. Choose yours:</p>
-        <ul id="guest-choices" class="rsvp-choices"></ul>
-        <button type="button" id="btn-back-lookup" class="button button--quiet">Search again</button>
-      </div>
-
-      <div id="rsvp-party" class="rsvp-panel" hidden>
-        <h2 id="party-title" class="rsvp-party-title"></h2>
-        <form id="form-rsvp" class="rsvp-form rsvp-form--party">
-          <div id="guest-fields"></div>
-          <div class="rsvp-actions">
-            <button type="submit" class="button">Send RSVP</button>
-            <button type="button" id="btn-reset-party" class="button button--quiet">Look up a different invitation</button>
-          </div>
-        </form>
-      </div>
-
-      <p id="rsvp-message" class="rsvp-message" role="status" aria-live="polite"></p>
+    <div id="rsvp-lookup" class="rsvp-panel">
+      <p class="rsvp-intro">Enter your name as it appears on your invitation: first name, last name, or both.<br />Kindly reply by <span data-wc="rsvp.deadline">December 1, 2026</span>.</p>
+      <form id="form-find" class="rsvp-form">
+        <label class="rsvp-field">
+          <span class="rsvp-field__label">Name</span>
+          <input id="guest-name" class="rsvp-input" type="text" autocomplete="name" placeholder="First name, last name, or full name" required />
+        </label>
+        <button type="submit" class="button">Find invitation</button>
+      </form>
     </div>
+
+    <div id="rsvp-choose" class="rsvp-panel" hidden>
+      <p class="rsvp-intro">More than one invitation matches that name. Choose yours:</p>
+      <ul id="guest-choices" class="rsvp-choices"></ul>
+      <button type="button" id="btn-back-lookup" class="button button--quiet">Search again</button>
+    </div>
+
+    <div id="rsvp-party" class="rsvp-panel" hidden>
+      <h2 id="party-title" class="rsvp-party-title"></h2>
+      <form id="form-rsvp" class="rsvp-form rsvp-form--party">
+        <div id="guest-fields"></div>
+        <div class="rsvp-actions">
+          <button type="submit" class="button">Send RSVP</button>
+          <button type="button" id="btn-reset-party" class="button button--quiet">Look up a different invitation</button>
+        </div>
+      </form>
+    </div>
+
+    <p id="rsvp-message" class="rsvp-message" role="status" aria-live="polite"></p>
   </main>
 
   <footer class="site-footer">
+    <p class="site-footer__end">And they lived happily ever after.</p>
     <p class="site-footer__names" data-wc="couple.footerNames">Tabitha Larson &amp; Harrison Graham</p>
   </footer>
 
