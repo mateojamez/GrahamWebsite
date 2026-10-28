@@ -336,6 +336,10 @@ a:hover {
   position: relative;
   max-width: 34rem;
   margin: 0 auto;
+  /* Green bookcloth: a darker spine on the left and a fine crosshatch weave. */
+  --bookcloth: linear-gradient(90deg, rgb(0 0 0 / 0.35), rgb(255 255 255 / 0.06) 14px, transparent 30px),
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.05) 0 1px, transparent 1px 3px), var(--ink);
 }
 
 .book__pages {
@@ -401,13 +405,18 @@ a:hover {
   align-items: center;
   aspect-ratio: 4 / 5;
   padding: clamp(3rem, 8vw, 4.5rem) clamp(1.75rem, 6vw, 3.5rem);
-  background-color: var(--ink);
-  background-image:
-    linear-gradient(90deg, rgb(0 0 0 / 0.35), rgb(255 255 255 / 0.06) 14px, transparent 30px),
-    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.05) 0 1px, transparent 1px 3px);
+  background: var(--bookcloth);
   color: var(--vellum);
   text-align: center;
+}
+
+/* The back cover lies under the pages. The pages are smaller than the covers, so its
+ * cloth shows around them, as it would in a real book. */
+.book__back {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px 8px 8px 3px;
+  background: var(--bookcloth);
 }
 
 .book__cover::before {
@@ -461,8 +470,12 @@ a:hover {
   color: var(--gilt-soft);
 }
 
-/* A photo page: vellum, a double gilt line, and a folio at the foot. */
+/* A photo page: vellum, a double gilt line, and a folio at the foot. It's inset from
+ * the covers on every side but the spine. */
 .book__page {
+  inset: 14px 16px 14px 8px;
+  border-radius: 2px 5px 5px 2px;
+  box-shadow: 2px 2px 6px rgb(0 0 0 / 0.25);
   display: flex;
   flex-direction: column;
   padding: clamp(1.25rem, 4vw, 2rem) clamp(1.25rem, 4vw, 2rem) 0.5rem clamp(1.75rem, 5vw, 2.5rem);
@@ -492,6 +505,12 @@ a:hover {
 
 .book .decal {
   z-index: 5;
+  transition: opacity 400ms ease;
+}
+
+/* The decals belong to the cover, so they fade once the book is open. */
+.book.is-open .decal {
+  opacity: 0;
 }
 
 /* The arrows sit outside the book's edges on wide screens and over them on phones. */
@@ -630,7 +649,8 @@ a:hover {
   }
 
   .decal--dragon {
-    animation: dragon-drop 1100ms cubic-bezier(0.25, 1.4, 0.5, 1) 900ms both;
+    /* backwards, not both: a held end state would pin opacity and block the fade on open. */
+    animation: dragon-drop 1100ms cubic-bezier(0.25, 1.4, 0.5, 1) 900ms backwards;
     transform-origin: 70% 0;
   }
 }
@@ -904,6 +924,13 @@ a:hover {
   fill: var(--ink);
   font-family: var(--font-display);
   font-size: 22px;
+}
+
+.realm__sublabel {
+  fill: var(--ink-soft);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
 }
 
 .realm__num {

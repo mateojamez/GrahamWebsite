@@ -54,6 +54,8 @@ if (book) {
     if (turning || to < 0 || to > pageCount || to === current) return;
     const from = current;
     leaves[to].classList.add("is-current");
+    // The cover's decals fade as soon as the book opens and return when it closes.
+    book.classList.toggle("is-open", to !== 0);
 
     if (calm.matches) {
       finish(from, to);
