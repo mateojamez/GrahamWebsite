@@ -25,10 +25,11 @@ if (book) {
   };
   leaves.forEach((leaf, i) => expose(leaf, i === 0));
 
-  // Start loading the photo after the one in view, so it's ready when the page turns.
+  // Start loading the photos on the next page, so they're ready when the page turns.
   const preload = (index) => {
-    const img = leaves[index]?.querySelector("img");
-    if (img) img.loading = "eager";
+    leaves[index]?.querySelectorAll("img").forEach((img) => {
+      img.loading = "eager";
+    });
   };
   preload(1);
 
@@ -56,6 +57,8 @@ if (book) {
     leaves[to].classList.add("is-current");
     // The cover's decals fade as soon as the book opens and return when it closes.
     book.classList.toggle("is-open", to !== 0);
+    // Lets the dragon fly back to the cover without replaying its fly-back on page load.
+    if (to !== 0) book.classList.add("has-opened");
 
     if (calm.matches) {
       finish(from, to);
