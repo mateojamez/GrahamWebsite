@@ -38,10 +38,26 @@ html {
   -webkit-text-size-adjust: 100%;
   /* Keeps in-page links, such as info.html#dress, from landing under the header. */
   scroll-padding-top: 6rem;
+  /* Keeps the parchment's color on the body rather than spreading over the meadow. */
+  background-color: var(--lavender-ink);
 }
 
+/* A lavender meadow stays put behind the parchment as the page scrolls. A fixed layer
+ * rather than background-attachment, which iOS Safari ignores. */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url("../images/lavender-meadow.webp") center / cover;
+}
+
+/* The page is a sheet of parchment down the middle of the meadow. On screens narrower
+ * than the sheet, it fills the screen. */
 body {
-  margin: 0;
+  max-width: 64rem;
+  margin: 0 auto;
+  box-shadow: 0 0 2.5rem rgb(40 24 64 / 0.45);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -55,8 +71,12 @@ body {
   line-height: 1.65;
 }
 
+/* The schedule sizes itself to the parchment, not the window. The container is here
+ * rather than on body: containment on body stops its overflow-x from passing to the
+ * window, which turns body into its own scroll box and unpins the sticky header. */
 main {
   flex: 1;
+  container: page / inline-size;
 }
 
 a {
@@ -328,8 +348,14 @@ a:hover {
   position: relative;
   /* The top padding leaves room for the dragon's wing above the frame. */
   padding: clamp(3rem, 5vw, 3.5rem) var(--gutter) clamp(4rem, 9vw, 6.5rem);
-  /* The flown-away dragon would otherwise widen the page. */
-  overflow-x: clip;
+}
+
+/* Where the parchment fills the screen, the flown-away dragon would otherwise widen the
+ * page. On wider screens it flies out over the meadow. */
+@media (max-width: 64rem) {
+  .title-page {
+    overflow-x: clip;
+  }
 }
 
 /* ---------- The picture book (js/picture-book.js) ---------- */
@@ -1581,7 +1607,7 @@ select.rsvp-input {
 
 /* Too narrow for the fixed schedule and a full-height photo: the schedule flexes, and
  * the photo takes 40% of the row at its own 2:3 shape. */
-@media (max-width: 1250px) {
+@container page (max-width: 1250px) {
   .chapters__columns {
     gap: 0 clamp(1.5rem, 4vw, 3rem);
   }
@@ -1599,7 +1625,7 @@ select.rsvp-input {
 }
 
 /* Below this width the schedule needs the whole row, so the photo column drops. */
-@media (max-width: 900px) {
+@container page (max-width: 900px) {
   .chapters__inner {
     max-width: 40rem;
   }
