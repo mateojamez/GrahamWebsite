@@ -1658,7 +1658,7 @@ select.rsvp-input {
 
   .decal--dragon {
     top: -1.25rem;
-    right: 0.25rem;
+    right: -0.25rem;
   }
 
   .provisions__grid {
@@ -1694,7 +1694,7 @@ select.rsvp-input {
   /* Keeps the hydrangea off the status line under the book. */
   .decal--hydrangea {
     bottom: -0.75rem;
-    left: -0.5rem;
+    left: -1rem;
     width: 125px;
   }
 
