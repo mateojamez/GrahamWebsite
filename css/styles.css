@@ -1657,6 +1657,7 @@ select.rsvp-input {
   }
 
   .decal--dragon {
+    top: -1.25rem;
     right: 0.25rem;
   }
 
@@ -1694,7 +1695,7 @@ select.rsvp-input {
   .decal--hydrangea {
     bottom: -0.75rem;
     left: -0.5rem;
-    width: 100px;
+    width: 125px;
   }
 
   .page .decal--ivy,

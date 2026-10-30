@@ -97,7 +97,7 @@ export const WEDDING = {
         <h3>Ring Ceremony &amp; Brunch (morning)</h3>
         <p>Come in costume if you want. If you're also invited to the temple sealing, we'd rather you didn't have to change in between.</p>
         <h3>Temple Sealing &amp; photos</h3>
-        <p>After the sealing, we'll take pictures on the temple grounds, and the same dress code applies for photos: costume preferred, and Sunday dress is good too.</p>
+        <p>After the Sealing, we will be doing pictures on the Temple Grounds, and the same Dress Code applies for photos.</p>
         <h3>Our colors</h3>
         <p>Lavender, sage green, and dark forest green, and you're welcome to wear them. Blues and golds are also very on theme. We ask that guests avoid all-white or ivory.</p>
         <h3>Prop weapons</h3>
