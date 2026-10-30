@@ -1683,21 +1683,18 @@ select.rsvp-input {
     font-size: 2rem;
   }
 
-  /* On phones the decals sit above the heading instead of beside it. */
-  .finale {
-    padding-top: 9rem;
-  }
-
-  .decal--arch {
-    right: -0.5rem;
-    top: -7.5rem;
-    width: 110px;
-  }
-
+  /* Phones have no room beside the heading for the ruins, and above it they crowd the
+   * text, so the heading's own fleuron is the only ornament here. */
+  .decal--arch,
   .decal--brick {
+    display: none;
+  }
+
+  /* Keeps the hydrangea off the status line under the book. */
+  .decal--hydrangea {
+    bottom: -0.75rem;
     left: -0.5rem;
-    top: -7.5rem;
-    width: 110px;
+    width: 100px;
   }
 
   .page .decal--ivy,
