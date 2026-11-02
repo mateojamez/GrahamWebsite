@@ -10,6 +10,7 @@
  *                     a matching `invited_<slug>` column on `guests`
  *                     (supabase/schema.sql).
  *
+ * - `primary: true` — the event most guests attend; the home page highlights it.
  * - `note`          — optional line under the event name, such as who is invited.
  *
  * Values marked TODO are placeholders waiting on details from Harrison.
@@ -79,6 +80,15 @@ export const WEDDING = {
   date: primaryEvent.date,
   city: "Gilbert, Arizona",
 
+  // Shown under the schedule on index.html. Not an RSVP event; guests come and go.
+  openHouse: {
+    name: "Utah Open House",
+    date: { iso: "2027-02-06", display: "Saturday, February 6, 2027" },
+    time: "10:00 AM – 12:00 PM",
+    note: "A cereal bar open house for everyone who couldn't make it to Arizona. Come and go as you please.",
+    venue: { name: "", addressLine1: "325 Canal Drive", addressLine2: "Lindon, UT 84042" },
+  },
+
   rsvp: {
     deadline: "December 1, 2026", // empty hides the deadline line
   },
@@ -97,7 +107,7 @@ export const WEDDING = {
         <h3>Ring Ceremony &amp; Brunch (morning)</h3>
         <p>Come in costume if you want. If you're also invited to the temple sealing, we'd rather you didn't have to change in between.</p>
         <h3>Temple Sealing &amp; photos</h3>
-        <p>After the Sealing, we will be doing pictures on the Temple Grounds, and the same Dress Code applies for photos.</p>
+        <p>After the Sealing, we will be doing pictures on the Temple Grounds, and the same Dress Code applies for photos, but for the sealing, those invited should know what to wear.</p>
         <h3>Our colors</h3>
         <p>Lavender, sage green, and dark forest green, and you're welcome to wear them. Blues and golds are also very on theme. We ask that guests avoid all-white or ivory.</p>
         <h3>Prop weapons</h3>

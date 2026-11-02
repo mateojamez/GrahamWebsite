@@ -60,7 +60,7 @@ function renderChapter(event, index) {
   const { venue } = event;
   return h(
     "li",
-    { class: "chapter", id: `event-${event.slug}` },
+    { class: event.primary ? "chapter chapter--primary" : "chapter", id: `event-${event.slug}` },
     h("span", { class: "chapter__num", "aria-hidden": "true" }, ROMAN[index] ?? String(index + 1)),
     h(
       "div",
@@ -92,6 +92,35 @@ function renderSchedule() {
   root.replaceChildren(...WEDDING.events.filter((e) => e.public).map(renderChapter));
 }
 
+/** The Utah open house, a separate day from the schedule. Hidden when it isn't set. */
+function renderOpenHouse() {
+  const root = document.querySelector("[data-wc-open-house]");
+  if (!root) return;
+  const event = WEDDING.openHouse;
+  root.hidden = !event;
+  if (!event) return;
+  const { venue } = event;
+  const url = directionsUrl(venue);
+  root.replaceChildren(
+    h("h3", { class: "open-house__name" }, event.name),
+    h(
+      "p",
+      { class: "chapter__when" },
+      h("time", { datetime: event.date.iso || null }, event.date.display),
+      event.time ? h("span", { class: "chapter__time" }, event.time) : null
+    ),
+    event.note ? h("p", { class: "open-house__note" }, event.note) : null,
+    h(
+      "address",
+      { class: "chapter__venue" },
+      venue.name ? [h("strong", {}, venue.name), h("br")] : null,
+      venue.addressLine1 ? [venue.addressLine1, h("br")] : null,
+      venue.addressLine2
+    ),
+    url ? h("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, "Get directions") : null
+  );
+}
+
 /** A Google Maps search for the venue, or null when it has no address yet. */
 function directionsUrl(venue) {
   if (!venue?.addressLine2) return null;
@@ -119,7 +148,7 @@ function renderDirections() {
       const url = directionsUrl(event.venue);
       return h(
         "li",
-        { class: "realm__stop" },
+        { class: event.primary ? "realm__stop realm__stop--primary" : "realm__stop" },
         h("span", { class: "realm__stop-num", "aria-hidden": "true" }, ROMAN[index] ?? String(index + 1)),
         h(
           "div",
@@ -211,6 +240,7 @@ function init() {
   applyAttrs();
   applyConditionals();
   renderSchedule();
+  renderOpenHouse();
   renderDirections();
   renderDressCode();
   renderFaqs();
