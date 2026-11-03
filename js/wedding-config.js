@@ -60,7 +60,7 @@ const events = [
     primary: true,
     note: "",
     date: { iso: "2027-01-16", display: "Saturday, January 16, 2027" },
-    time: "7:00 PM",
+    time: "7:00 PM – 9:30 PM",
     // TODO: the church's name, to show above the street address
     venue: { name: "2334 E Pueblo Ave", addressLine1: "", addressLine2: "Mesa, AZ 85204" },
     timeline: [],
