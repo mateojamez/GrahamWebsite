@@ -81,7 +81,7 @@ function renderChapter(event, index) {
             venue.addressLine1 ? [h("br"), venue.addressLine1] : null,
             venue.addressLine2 ? [h("br"), venue.addressLine2] : null
           )
-        : h("p", { class: "pending" }, "Location coming soon")
+        : h("p", { class: "pending" }, event.venueNote || "Location coming soon")
     )
   );
 }
@@ -154,7 +154,7 @@ function renderDirections() {
           "div",
           {},
           h("p", { class: "realm__stop-name" }, event.name),
-          h("p", { class: "realm__stop-venue" }, event.venue?.name || "Location coming soon"),
+          h("p", { class: "realm__stop-venue" }, event.venue?.name || event.venueNote || "Location coming soon"),
           url
             ? h("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, "Get directions")
             : null

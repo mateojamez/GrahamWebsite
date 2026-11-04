@@ -1094,12 +1094,13 @@ a:hover {
   text-anchor: middle;
 }
 
-.realm__place {
+/* Only landmarks with an address get a link; the invite-only ones stay plain. */
+.realm__map a[href] .realm__place {
   cursor: pointer;
 }
 
-.realm__map a:hover .realm__label,
-.realm__map a:focus-visible .realm__label {
+.realm__map a[href]:hover .realm__label,
+.realm__map a[href]:focus-visible .realm__label {
   fill: var(--lavender-ink);
   text-decoration: underline;
 }

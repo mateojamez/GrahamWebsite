@@ -29,11 +29,9 @@ const events = [
     note: "By invitation only",
     date: { iso: "2027-01-16", display: "Saturday, January 16, 2027" },
     time: "10:30 AM – 12:00 PM",
-    venue: {
-      name: "Val Vista Lakes Clubhouse",
-      addressLine1: "1600 E Lakeside Dr",
-      addressLine2: "Gilbert, AZ 85234",
-    },
+    // Invite-only: the location is printed on the invitation, never on the site.
+    venue: null,
+    venueNote: "Location on your invitation",
     timeline: [],
   },
   {
