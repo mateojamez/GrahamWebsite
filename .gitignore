@@ -8,3 +8,4 @@ node_modules/
 
 # Full-size originals of the couple photos; the site uses web copies in images/.
 photos/
+__pycache__/
