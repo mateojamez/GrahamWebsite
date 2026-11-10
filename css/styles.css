@@ -1520,11 +1520,6 @@ select.rsvp-input {
   font-size: 1.3rem;
 }
 
-.rsvp-choice__party {
-  font-style: italic;
-  color: var(--ink-soft);
-}
-
 #rsvp-choose {
   text-align: center;
 }
@@ -1535,18 +1530,6 @@ select.rsvp-input {
   font-weight: 400;
   font-size: 1.9rem;
   text-align: center;
-}
-
-.rsvp-guest-card {
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--gilt-soft);
-}
-
-.rsvp-guest-card__name {
-  margin: 0 0 1rem;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.6rem;
 }
 
 .rsvp-event-field {
@@ -1563,6 +1546,50 @@ select.rsvp-input {
   font-weight: 400;
   font-style: italic;
   font-size: 1.3rem;
+}
+
+fieldset.rsvp-event-field {
+  margin: 0 0 1.75rem;
+  padding: 0 0 0 1rem;
+  border: 0;
+  border-left: 2px solid var(--sage);
+  min-width: 0;
+}
+
+fieldset.rsvp-event-field > legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+}
+
+.rsvp-event-field__when {
+  clear: both;
+  margin: 0;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.rsvp-yesno {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+}
+
+.rsvp-yesno__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.rsvp-yesno__option input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--lavender-ink);
+}
+
+.rsvp-count[hidden] {
+  display: none;
 }
 
 .rsvp-actions {
@@ -1613,33 +1640,69 @@ select.rsvp-input {
   margin-top: 1rem;
 }
 
-.rsvpcheck-summary {
-  margin: 0.5rem 0 1rem;
-  color: var(--ink-soft);
-  font-weight: 500;
+.rsvpcheck-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
 }
 
-.rsvpcheck-event {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--gilt);
+.rsvpcheck-filter {
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--gilt);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
 }
 
-.rsvpcheck-title {
-  margin: 0;
+.rsvpcheck-filter[aria-pressed="true"] {
+  background: var(--lavender-ink);
+  border-color: var(--lavender-ink);
+  color: var(--vellum);
+}
+
+.rsvpcheck-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.rsvpcheck-total__name {
+  margin: 0 0 0.5rem;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.9rem;
+  font-size: 1.5rem;
 }
 
-.rsvpcheck-grid {
+.rsvpcheck-stats {
   display: grid;
-  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem 1rem;
+  margin: 0;
 }
 
-.rsvpcheck-card .rsvp-party-title {
-  margin-bottom: 0.75rem;
-  font-size: 1.35rem;
+.rsvpcheck-stat dt {
+  font-family: var(--font-sc);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.rsvpcheck-stat dd {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.rsvpcheck-answer--waiting,
+.rsvpcheck-na {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.rsvpcheck-answer--no {
+  color: #8a2d2d;
 }
 
 .rsvpcheck-table-wrap {

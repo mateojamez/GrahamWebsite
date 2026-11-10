@@ -19,7 +19,7 @@ Built as a **static multi-page front end** with a **Supabase-backed RSVP subsyst
 | Couple needs response tracking before the deadline                  | Unlisted `rsvpcheck/` dashboard buckets guests by attending, declined, or no response |
 
 
-The RSVP path replaces manual tracking (texts, spreadsheets) with **idempotent writes**: re-submitting updates the same row per `guest_id`, so guests can change answers without duplicate records.
+The RSVP path replaces manual tracking (texts, spreadsheets) with **idempotent writes**: re-submitting updates the same row per invitation and event, so guests can change answers without duplicate records.
 
 ---
 
@@ -34,8 +34,9 @@ The RSVP path replaces manual tracking (texts, spreadsheets) with **idempotent w
 ├── js/
 │   ├── wedding-config.js        # Single source of truth for wedding details
 │   ├── apply-wedding-config.js  # Renders config into every page
-│   ├── rsvp-app.js              # Guest lookup, party load, upsert logic
-│   ├── rsvp-check.js            # Dashboard: guests vs RSVP status
+│   ├── rsvp-model.js            # RSVP events, answer rules, dashboard totals
+│   ├── rsvp-app.js              # Guest lookup and RSVP form
+│   ├── rsvp-check.js            # Dashboard: per-event totals and answers
 │   └── supabase-config.js       # Project URL + anon key
 ├── registry-list/
 │   └── index.html          # Registry links from the config
@@ -44,7 +45,10 @@ The RSVP path replaces manual tracking (texts, spreadsheets) with **idempotent w
 ├── images/                 # Watercolor decals, cropped and cleaned for the web
 ├── reference-decals/       # Source decal art
 ├── reference-mockups/      # Design reference
-├── supabase/schema.sql
+├── supabase/schema.sql     # Tables and RSVP functions
+├── supabase/tests/         # SQL checks
+├── scripts/                # Guest CSV to SQL import
+├── tests/                  # Node tests for js/rsvp-model.js
 └── README.md
 ```
 
@@ -54,80 +58,49 @@ Local debugging uses the parent workspace `.vscode/` launch config and task (`py
 
 ## Data model
 
-Schema is inferred from client queries and upserts (DDL lives in Supabase, not in this repository):
+The schema lives in `supabase/schema.sql` and is applied by hand in the Supabase SQL editor.
 
 ```
-parties
-  id            uuid (PK)
-  party_name    text
-
-guests
-  id            uuid (PK)
-  party_id      uuid → parties.id
-  first_name    text
-  last_name     text | null
-
-rsvps
-  guest_id      uuid (PK / unique conflict target)
-  attending     boolean
-  dietary_restrictions  text
-  updated_at    timestamptz
+invitees     id, name ("Pat and Lee Doe and Family"), note (dietary needs)
+invitations  id, invitee_id, event, seats      -- one row per invited event
+responses    invitation_id, coming, updated_at -- 0 = No; 1..seats = Yes
 ```
 
-**Relationships:** PostgREST nested selects load `parties` with embedded `guests`, and guest lookup joins `parties ( party_name )` for disambiguation labels. The dashboard joins `guests` with nested `parties` and merges against a full `rsvps` select.
+RSVP events: `ring-ceremony`, `reception` (Arizona), and `open-house` (Utah). The temple sealing takes no RSVP.
 
----
+- Reception list: invited to the Reception and the Open House.
+- Ring Ceremony list: invited to all three.
 
-## RSVP subsystem
+RLS is on with no policies, so the publishable key can't read or write tables directly. The browser calls four `security definer` functions:
 
-The RSVP flow is a **three-panel state machine** (`lookup → choose → party`) implemented in vanilla JavaScript with JSDoc-typed Supabase shapes.
+| Function | Purpose |
+|---|---|
+| `find_invitees(query)` | Up to 10 invitations whose name contains every typed word (exact, 3+ letter prefix, or a small typo). |
+| `get_invitation(invitee)` | The invitation's events, seats, and saved answers. |
+| `submit_rsvp(invitee, answers, note)` | Saves every answer at once. Rejects a missing event, an extra event, or a count outside 0 to seats. |
+| `rsvp_report()` | Every invitation and answer, for `rsvpcheck/`. |
 
-### 1. Guest discovery
+## RSVP flow
 
-Input accepts first name only, last name only, or full name (`parseNameInput` splits on whitespace).
+1. The guest types a name. One match opens the invitation; several show a list to choose from.
+2. Each invited event requires Yes or No. A Yes on a multi-seat invitation also requires how many are coming.
+3. One optional dietary note covers the invitation. Returning guests see their answers filled in.
 
-Two parallel **case-insensitive** queries run against `guests`:
+`rsvpcheck/` shows per-event totals (coming, replied, declined, no reply, seats) and one row per invitation, filterable by event through the URL hash.
 
-- `ilike` on `first_name` with the parsed first token
-- `ilike` on `last_name` with the parsed last token (or first token when last is empty)
+## Importing the guest list
 
-Results merge in a `Map` keyed by `guest.id` to deduplicate rows returned by both queries.
+The guest list never goes in git. To load it:
 
-### 2. Client-side matching
+1. Export the spreadsheet as CSV.
+2. Run `python scripts/guests_to_sql.py GUESTS.csv OUT.sql --rename "OLD=NEW"`, with `OUT.sql` outside the repo. The script prints totals and notes (merged names, guessed counts).
+3. Paste `OUT.sql` into the Supabase SQL editor. It replaces all invitations and answers.
 
-Server-side `ilike` is intentionally broad; precision happens in `guestMatchesSearch`:
+## Tests
 
-- **Full name:** normalized first and last must match exactly
-- **Single token:** matches either first or last name field
-
-Normalization lowercases and trims - no phonetic or fuzzy edit distance (deliberate simplicity).
-
-### 3. Routing
-
-
-| Outcome                   | Behavior                                         |
-| ------------------------- | ------------------------------------------------ |
-| 0 matches                 | Error message; no party data leaked              |
-| 1 unique `party_id`       | Auto-load party                                  |
-| 2+ matches across parties | Render choice list with guest name + party label |
-
-
-### 4. Party form & persistence
-
-- `loadParty` fetches `parties` with nested `guests` via `.single()`
-- `renderGuestFields` builds per-guest cards (attending select + dietary text)
-- In-memory `responses` object syncs on `input` / `change`
-- Submit maps to rows and `**upsert`s** into `rsvps` with `onConflict: "guest_id"`
-
-Dynamic HTML uses `escapeHtml` on all interpolated guest/party strings to mitigate XSS when rendering search results and form cards.
-
-### 5. Configuration guard
-
-`isConfigReady()` validates URL/key placeholders before creating the Supabase client, surfacing an actionable error if credentials are missing.
-
-### 6. Couple dashboard (`rsvpcheck/`)
-
-`rsvp-check.js` loads all `guests` (with nested party names) and all `rsvps` in parallel, then classifies each guest into attending, not attending, or no response. Summary counts render in the page header; tables use `textContent` (not `innerHTML`) for row data. The page is omitted from site navigation and intended as a bookmark-only ops view for the couple.
+- `node --test tests/*.test.mjs`: browser RSVP logic.
+- `python -m unittest discover scripts`: the import script.
+- `supabase/tests/rsvp_checks.sql`: paste into the SQL editor after the schema; it rolls back and ends with `all rsvp checks passed`.
 
 ---
 
@@ -185,8 +158,8 @@ Comments in that file reference `NEXT_PUBLIC_SUPABASE_*` variables used elsewher
 | Topic                    | Approach                                                                                                                                                  |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Guest authentication** | None. Possession of a matching invitation name grants access to that party's RSVP form - a conscious tradeoff for frictionless guest UX on a static site. |
-| **Authorization**        | Expected to be enforced via Supabase **RLS** on `guests`, `parties`, and `rsvps` (policies are not versioned in this repo).                               |
-| **Admin dashboard**      | `rsvpcheck/` is unlisted but public if deployed; anyone who can read all rows via the anon key can use it. Restrict with RLS or remove before going live. |
+| **Authorization**        | RLS blocks direct table access; guests reach data only through the functions in `supabase/schema.sql`, which return at most 10 names per search. |
+| **Admin dashboard**      | `rsvpcheck/` has no password. `rsvp_report()` returns every invitation to anyone with the publishable key; the couple accepted this tradeoff. |
 | **XSS**                  | User-derived strings escaped before `innerHTML` assignment in RSVP rendering; dashboard rows use `textContent`.                                           |
 | **Secrets**              | Only the public anon key is present; service role keys must never ship to the browser.                                                                    |
 | **PII surface**          | Names and dietary notes are written to Postgres; no analytics or ad scripts in first-party pages.                                                         |
@@ -199,8 +172,8 @@ Comments in that file reference `NEXT_PUBLIC_SUPABASE_*` variables used elsewher
 The deployable unit is **the static file tree** (HTML, CSS, JS, images). Any static host (object storage + CDN, GitHub Pages, Netlify, etc.) suffices. The RSVP feature requires:
 
 1. HTTPS origin (Supabase API calls from the browser)
-2. Valid Supabase project with populated `parties` / `guests` tables
-3. RLS policies aligned with the anon client's read/write needs
+2. `supabase/schema.sql` applied to the Supabase project
+3. The guest list imported (see Importing the guest list)
 
 No Docker, CI config, or infrastructure-as-code is checked into this repository. Remote: [github.com/mateojamez/GrahamWebsite](https://github.com/mateojamez/GrahamWebsite).
 

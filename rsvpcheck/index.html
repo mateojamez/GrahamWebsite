@@ -33,12 +33,18 @@
         <h1 class="page__title">RSVP Check</h1>
         <button id="rsvpcheck-refresh" class="button button--quiet" type="button">Refresh</button>
       </div>
-      <p class="rsvp-intro">Guest list vs RSVP status, per event. Dietary restrictions are shown for every guest.</p>
+      <p class="rsvp-intro">Every invitation and its answers. Totals count people, not invitations.</p>
 
-      <div id="rsvpcheck-summary" class="rsvpcheck-summary" aria-live="polite"></div>
+      <div id="rsvpcheck-filters" class="rsvpcheck-filters" role="group" aria-label="Show event"></div>
+      <div id="rsvpcheck-summary" class="rsvpcheck-totals" aria-live="polite"></div>
       <p id="rsvpcheck-message" class="rsvp-message" role="status" aria-live="polite"></p>
 
-      <div id="rsvpcheck-events"></div>
+      <div class="rsvpcheck-table-wrap">
+        <table class="rsvpcheck-table">
+          <thead id="rsvpcheck-head"></thead>
+          <tbody id="rsvpcheck-body"></tbody>
+        </table>
+      </div>
     </section>
   </main>
 

@@ -5,10 +5,11 @@
  *
  * Event flags:
  * - `public: true`  — the event appears in the schedule on index.html.
- * - `rsvp: true`    — guests invited to it get RSVP fields on rsvp.html and it
- *                     appears on the rsvpcheck/ dashboard. Each RSVP event needs
- *                     a matching `invited_<slug>` column on `guests`
- *                     (supabase/schema.sql).
+ * - `rsvp: true`    — guests invited to it answer for it on rsvp.html, and it
+ *                     appears on the rsvpcheck/ dashboard. Who is invited lives
+ *                     in the `invitations` table (supabase/schema.sql); the slug
+ *                     must be one that table allows. `rsvpName` is the label on
+ *                     the RSVP form when it differs from `name`.
  *
  * - `primary: true` — the event most guests attend; the home page highlights it.
  * - `note`          — optional line under the event name, such as who is invited.
@@ -53,6 +54,7 @@ const events = [
   {
     slug: "reception",
     name: "Reception",
+    rsvpName: "Arizona Reception",
     public: true,
     rsvp: true,
     primary: true,
@@ -78,9 +80,12 @@ export const WEDDING = {
   date: primaryEvent.date,
   city: "Gilbert, Arizona",
 
-  // Shown under the schedule on index.html. Not an RSVP event; guests come and go.
+  // Shown under the schedule on index.html. Everyone invited answers for it on
+  // rsvp.html, after the Arizona events.
   openHouse: {
+    slug: "open-house",
     name: "Utah Open House",
+    rsvp: true,
     date: { iso: "2027-02-06", display: "Saturday, February 6, 2027" },
     time: "10:00 AM – 12:00 PM",
     note: "A cereal bar open house for everyone who couldn't make it to Arizona. Come and go as you please.",
@@ -117,7 +122,7 @@ export const WEDDING = {
     faqs: [
       {
         question: "Do I need to RSVP?",
-        html: 'Yes. RSVPs are required for both the Ring Ceremony and the Reception by December 1, 2026, on the <a href="rsvp.html">RSVP page</a>. Search for your name as it appears on your invitation, and you can answer for everyone in your household at once. Any RSVP not received by December 1 will be marked as a "No," and we’ll let those guests know.',
+        html: 'Yes. Every event on your invitation needs a reply by December 1, 2026: the Arizona Reception, the Utah Open House, and the Ring Ceremony if your invitation includes it. Reply on the <a href="rsvp.html">RSVP page</a>. Search for your name as it appears on your invitation, and you can answer for everyone on it at once, including how many are coming. Any RSVP not received by December 1 will be marked as a "No," and we’ll let those guests know.',
       },
       {
         question: "Can I change my RSVP?",

@@ -1,7 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-config.js";
-import { WEDDING } from "./wedding-config.js";
-import { invitedColumn } from "./event-columns.js";
+import { buildAnswers, eventBySlug, sortInvited } from "./rsvp-model.js";
+
+/**
+ * Guest RSVP flow: find an invitation by name (find_invitees), show its events
+ * (get_invitation), and save every answer at once (submit_rsvp). The functions
+ * live in supabase/schema.sql; guests can't read the tables directly.
+ */
 
 function isConfigReady() {
   const urlOk =
@@ -30,25 +35,12 @@ const els = {
   btnBackLookup: document.getElementById("btn-back-lookup"),
 };
 
+const NOT_FOUND =
+  "We couldn't find that name. Try it as it appears on your invitation, or contact Harrison (see the FAQ on the Details page).";
+
 let supabase = null;
-/**
- * @type {{ id: string, party_name: string, guests: Record<string, unknown>[] } | null}
- * Each guest also carries one `invited_<slug>` boolean per RSVP event
- * (see EVENT_INVITE_COLUMNS below), fetched dynamically so the query stays in
- * sync with whatever events are listed in wedding-config.js.
- */
-let party = null;
-/** responses[guestId][eventSlug] = { attending: "yes" | "no" | "", dietary_restrictions: string } */
-const responses = {};
-
-/** Only events with `rsvp: true` get RSVP fields; the temple, for example, doesn't. */
-const RSVP_EVENTS = WEDDING.events.filter((e) => e.rsvp);
-const EVENT_INVITE_COLUMNS = RSVP_EVENTS.map((e) => invitedColumn(e.slug));
-
-/** @param {Record<string, unknown>} guest */
-function invitedEventsForGuest(guest) {
-  return RSVP_EVENTS.filter((e) => guest[invitedColumn(e.slug)] === true);
-}
+/** @type {{ id: string, name: string, note: string, events: import("./rsvp-model.js").InvitedEvent[] } | null} */
+let invitation = null;
 
 function setMessage(text, isError = false) {
   els.message.textContent = text;
@@ -63,315 +55,204 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-function normalizeNamePart(value) {
-  return String(value ?? "").trim().toLowerCase();
-}
-
-/** @param {string} input */
-function parseNameInput(input) {
-  const trimmed = input.trim();
-  if (!trimmed) return { first: "", last: "" };
-  const parts = trimmed.split(/\s+/);
-  return {
-    first: parts[0],
-    last: parts.slice(1).join(" "),
-  };
-}
-
-/** @param {{ first_name: string, last_name?: string | null }} guest */
-function formatGuestName(guest) {
-  const first = String(guest.first_name ?? "").trim();
-  const last = guest.last_name == null ? "" : String(guest.last_name).trim();
-  return last ? `${first} ${last}` : first;
-}
-
-/**
- * @param {{ first_name: string, last_name?: string | null }} guest
- * @param {string} userFirst
- * @param {string} userLast
- */
-function guestMatchesSearch(guest, userFirst, userLast) {
-  const guestFirst = normalizeNamePart(guest.first_name);
-  const guestLast =
-    guest.last_name == null || String(guest.last_name).trim() === ""
-      ? null
-      : normalizeNamePart(guest.last_name);
-  const uFirst = normalizeNamePart(userFirst);
-  const uLast = userLast ? normalizeNamePart(userLast) : "";
-
-  if (!uFirst) return false;
-
-  if (uLast) {
-    if (guestFirst !== uFirst) return false;
-    if (guestLast === null) return false;
-    return guestLast === uLast;
-  }
-
-  const token = uFirst;
-  if (guestFirst === token) return true;
-  if (guestLast !== null && guestLast === token) return true;
-  return false;
-}
-
-const GUEST_LOOKUP_SELECT = `
-  id,
-  first_name,
-  last_name,
-  party_id,
-  parties (
-    party_name
-  )
-`;
-
-/** @param {import("@supabase/supabase-js").SupabaseClient} db */
-async function fetchGuestCandidates(db, userFirst, userLast) {
-  const byFirst = await db
-    .from("guests")
-    .select(GUEST_LOOKUP_SELECT)
-    .ilike("first_name", userFirst);
-
-  if (byFirst.error) return { data: null, error: byFirst.error };
-
-  const byLast = await db
-    .from("guests")
-    .select(GUEST_LOOKUP_SELECT)
-    .ilike("last_name", userLast || userFirst);
-
-  if (byLast.error) return { data: null, error: byLast.error };
-
-  const merged = new Map();
-  for (const guest of [...(byFirst.data ?? []), ...(byLast.data ?? [])]) {
-    merged.set(guest.id, guest);
-  }
-  return { data: [...merged.values()], error: null };
-}
-
-/** @param {string} guestId @param {{ slug: string, name: string }} event */
-function renderEventField(guestId, event) {
-  return `
-    <div class="rsvp-event-field" data-event-slug="${escapeHtml(event.slug)}">
-      <h3 class="rsvp-event-field__name">${escapeHtml(event.name)}</h3>
-      <label class="rsvp-field">
-        <span class="rsvp-field__label">Attending?</span>
-        <select class="rsvp-input" required data-guest-id="${escapeHtml(guestId)}" data-event-slug="${escapeHtml(event.slug)}" data-field="attending">
-          <option value="">Select one</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-      <label class="rsvp-field">
-        <span class="rsvp-field__label">Dietary restrictions</span>
-        <input class="rsvp-input" type="text" placeholder="Allergies or dietary needs" data-guest-id="${escapeHtml(guestId)}" data-event-slug="${escapeHtml(event.slug)}" data-field="dietary_restrictions" />
-      </label>
-    </div>
-  `;
-}
-
-function renderGuestFields(guests) {
-  Object.keys(responses).forEach((k) => delete responses[k]);
-
-  els.guestFields.innerHTML = guests
-    .map((g) => {
-      const invitedEvents = invitedEventsForGuest(g);
-      const eventFields = invitedEvents.length
-        ? invitedEvents.map((event) => renderEventField(g.id, event)).join("")
-        : `<p class="rsvp-field__label">No events to RSVP for.</p>`;
-
-      return `
-    <article class="rsvp-guest-card" data-guest-id="${escapeHtml(g.id)}">
-      <h2 class="rsvp-guest-card__name">${escapeHtml(formatGuestName(g))}</h2>
-      ${eventFields}
-    </article>
-  `;
-    })
-    .join("");
-
-  els.guestFields.querySelectorAll("[data-field]").forEach((input) => {
-    const guestId = input.getAttribute("data-guest-id");
-    const eventSlug = input.getAttribute("data-event-slug");
-    const field = input.getAttribute("data-field");
-    const sync = () => {
-      responses[guestId] = responses[guestId] || {};
-      responses[guestId][eventSlug] = responses[guestId][eventSlug] || {};
-      responses[guestId][eventSlug][field] = input.value;
-    };
-    input.addEventListener("input", sync);
-    input.addEventListener("change", sync);
-  });
+function showPanel(panel) {
+  for (const p of [els.lookupPanel, els.choosePanel, els.partyPanel]) p.hidden = p !== panel;
 }
 
 function showLookup() {
-  party = null;
-  els.lookupPanel.hidden = false;
-  els.choosePanel.hidden = true;
-  els.partyPanel.hidden = true;
+  invitation = null;
+  showPanel(els.lookupPanel);
   els.formFind.reset();
   setMessage("");
+  els.guestName.focus();
 }
 
-function showParty(p) {
-  party = p;
-  els.lookupPanel.hidden = true;
-  els.choosePanel.hidden = true;
-  els.partyPanel.hidden = false;
-  els.partyTitle.textContent = `RSVP for ${p.party_name}`;
-  renderGuestFields(p.guests || []);
+/** @param {import("./rsvp-model.js").InvitedEvent} inv */
+function renderEventField(inv) {
+  const event = eventBySlug(inv.event);
+  const slug = escapeHtml(inv.event);
+  const answered = inv.coming != null;
+  const yes = answered && inv.coming > 0;
+  const no = answered && inv.coming === 0;
+  const countField =
+    inv.seats > 1
+      ? `
+      <label class="rsvp-field rsvp-count" ${yes ? "" : "hidden"}>
+        <span class="rsvp-field__label">How many of your ${inv.seats} are coming?</span>
+        <select class="rsvp-input" name="count-${slug}" ${yes ? "required" : "disabled"}>
+          <option value="">Choose a number</option>
+          ${Array.from({ length: inv.seats }, (_, i) => i + 1)
+            .map((n) => `<option value="${n}" ${yes && inv.coming === n ? "selected" : ""}>${n}</option>`)
+            .join("")}
+        </select>
+      </label>`
+      : "";
+
+  return `
+    <fieldset class="rsvp-event-field" data-event-slug="${slug}">
+      <legend class="rsvp-event-field__name">${escapeHtml(event?.name ?? inv.event)}</legend>
+      ${event?.when ? `<p class="rsvp-event-field__when">${escapeHtml(event.when)}</p>` : ""}
+      <div class="rsvp-yesno" role="radiogroup" aria-label="Attending ${escapeHtml(event?.name ?? inv.event)}">
+        <label class="rsvp-yesno__option">
+          <input type="radio" name="attending-${slug}" value="yes" required ${yes ? "checked" : ""} />
+          <span>${inv.seats > 1 ? "Yes, we'll be there" : "Yes, I'll be there"}</span>
+        </label>
+        <label class="rsvp-yesno__option">
+          <input type="radio" name="attending-${slug}" value="no" required ${no ? "checked" : ""} />
+          <span>${inv.seats > 1 ? "No, we can't make it" : "No, I can't make it"}</span>
+        </label>
+      </div>
+      ${countField}
+    </fieldset>
+  `;
 }
 
-/** @param {Array<{ id: string, first_name: string, last_name?: string | null, party_id: string, parties?: { party_name: string } | { party_name: string }[] | null }>} matches */
-function showGuestChoices(matches) {
-  els.lookupPanel.hidden = true;
-  els.choosePanel.hidden = false;
-  els.partyPanel.hidden = true;
-  setMessage("");
+function renderInvitation() {
+  const seatsLine = invitation.events.some((e) => e.seats > 1)
+    ? `<p class="rsvp-intro">Each event needs a yes or no. If you're coming, tell us how many from your invitation will be there.</p>`
+    : `<p class="rsvp-intro">Each event needs a yes or no.</p>`;
 
-  els.guestChoices.innerHTML = matches
-    .map((guest) => {
-      const partyName = Array.isArray(guest.parties)
-        ? guest.parties[0]?.party_name
-        : guest.parties?.party_name;
-      const partyLabel = partyName ? escapeHtml(partyName) : "Invitation";
-      return `
-        <li>
-          <button type="button" class="rsvp-choice" data-party-id="${escapeHtml(guest.party_id)}">
-            <span class="rsvp-choice__name">${escapeHtml(formatGuestName(guest))}
-            </span>
-            <span class="rsvp-choice__party">${partyLabel}</span>
-          </button>
-        </li>
-      `;
-    })
-    .join("");
+  els.guestFields.innerHTML = `
+    ${seatsLine}
+    ${invitation.events.map(renderEventField).join("")}
+    <label class="rsvp-field">
+      <span class="rsvp-field__label">Dietary needs (optional)</span>
+      <input class="rsvp-input" type="text" name="note" maxlength="500" placeholder="Allergies or dietary needs for anyone coming" value="${escapeHtml(invitation.note)}" />
+    </label>
+  `;
 
-  els.guestChoices.querySelectorAll(".rsvp-choice").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const partyId = btn.getAttribute("data-party-id");
-      if (partyId) loadParty(partyId);
+  // Show the count only after Yes, and only require it then.
+  els.guestFields.querySelectorAll(".rsvp-event-field").forEach((fieldset) => {
+    const count = fieldset.querySelector(".rsvp-count");
+    if (!count) return;
+    const select = count.querySelector("select");
+    fieldset.querySelectorAll('input[type="radio"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const yes = radio.value === "yes" && radio.checked;
+        count.hidden = !yes;
+        select.disabled = !yes;
+        select.required = yes;
+      });
     });
   });
 }
 
-async function loadParty(partyId) {
-  if (!supabase) return;
-
-  const { data: partyData, error } = await supabase
-    .from("parties")
-    .select(
-      `
-        id,
-        party_name,
-        guests (
-          id,
-          first_name,
-          last_name,
-          ${EVENT_INVITE_COLUMNS.join(",\n          ")}
-        )
-      `
-    )
-    .eq("id", partyId)
-    .single();
-
-  if (error || !partyData) {
-    console.error("Party lookup failed:", error);
-    setMessage("Could not load your invitation. Please try again.", true);
+/** @param {string} inviteeId */
+async function loadInvitation(inviteeId) {
+  setMessage("Opening your invitation…");
+  const { data, error } = await supabase.rpc("get_invitation", { invitee: inviteeId });
+  if (error || !data) {
+    console.error("get_invitation failed:", error);
+    setMessage("We couldn't open that invitation. Try again in a moment.", true);
     return;
   }
 
-  setMessage("");
-  showParty(partyData);
+  invitation = {
+    id: inviteeId,
+    name: data.name,
+    note: data.note ?? "",
+    events: sortInvited(data.events ?? []),
+  };
+  if (invitation.events.length === 0) {
+    setMessage("This invitation has no events to answer. Contact Harrison if that looks wrong.", true);
+    return;
+  }
+
+  setMessage(invitation.events.some((e) => e.coming != null) ? "Your earlier answers are filled in. Change anything and send again." : "");
+  els.partyTitle.textContent = `RSVP for ${invitation.name}`;
+  renderInvitation();
+  showPanel(els.partyPanel);
 }
 
-async function findParty(e) {
+/** @param {{ invitee_id: string, name: string }[]} matches */
+function showChoices(matches) {
+  showPanel(els.choosePanel);
+  setMessage("");
+  els.guestChoices.innerHTML = matches
+    .map(
+      (m) => `
+        <li>
+          <button type="button" class="rsvp-choice" data-invitee-id="${escapeHtml(m.invitee_id)}">
+            <span class="rsvp-choice__name">${escapeHtml(m.name)}</span>
+          </button>
+        </li>`
+    )
+    .join("");
+  els.guestChoices.querySelectorAll(".rsvp-choice").forEach((btn) => {
+    btn.addEventListener("click", () => loadInvitation(btn.getAttribute("data-invitee-id")));
+  });
+}
+
+async function findInvitation(e) {
   e.preventDefault();
   if (!supabase) {
-    setMessage(
-      "RSVP is not configured yet. Add your Supabase URL and anon key in js/supabase-config.js (same values as NEXT_PUBLIC_* in .env.local).",
-      true
-    );
+    setMessage("RSVP isn't set up yet. Check back soon.", true);
+    return;
+  }
+  const query = els.guestName.value.trim();
+  if (!query) {
+    setMessage("Enter your name.", true);
     return;
   }
 
-  const { first: userFirst, last: userLast } = parseNameInput(els.guestName.value);
-  if (!userFirst) {
-    setMessage("Please enter your name.", true);
-    return;
-  }
-
-  const { data: candidates, error } = await fetchGuestCandidates(
-    supabase,
-    userFirst,
-    userLast
-  );
-
+  setMessage("Searching…");
+  const { data, error } = await supabase.rpc("find_invitees", { query });
   if (error) {
-    console.error("Guest lookup failed:", error);
-    setMessage("No invitation found. Please check the name on your invitation.", true);
+    console.error("find_invitees failed:", error);
+    setMessage("The search didn't work. Try again in a moment.", true);
     return;
   }
-
-  const matches = (candidates ?? []).filter((guest) =>
-    guestMatchesSearch(guest, userFirst, userLast)
-  );
-
-  if (matches.length === 0) {
-    setMessage("No invitation found. Please check the name on your invitation.", true);
+  if (!data || data.length === 0) {
+    setMessage(NOT_FOUND, true);
     return;
   }
-
-  const uniqueMatches = [...new Map(matches.map((g) => [g.id, g])).values()];
-  const partyIds = new Set(uniqueMatches.map((g) => g.party_id));
-
-  if (partyIds.size === 1) {
-    setMessage("");
-    await loadParty(uniqueMatches[0].party_id);
+  if (data.length === 1) {
+    await loadInvitation(data[0].invitee_id);
     return;
   }
-
-  showGuestChoices(uniqueMatches);
+  showChoices(data);
 }
 
 async function submitRSVP(e) {
   e.preventDefault();
-  if (!supabase || !party) return;
+  if (!supabase || !invitation) return;
 
-  const guests = party.guests || [];
-  const rows = [];
-  for (const guest of guests) {
-    for (const event of invitedEventsForGuest(guest)) {
-      const answer = responses[guest.id]?.[event.slug] || {};
-      rows.push({
-        guest_id: guest.id,
-        event: event.slug,
-        attending: answer.attending === "yes",
-        dietary_restrictions: answer.dietary_restrictions || "",
-        updated_at: new Date().toISOString(),
-      });
-    }
+  const form = new FormData(els.formRsvp);
+  const choices = {};
+  for (const inv of invitation.events) {
+    choices[inv.event] = {
+      attending: form.get(`attending-${inv.event}`) ?? "",
+      count: form.get(`count-${inv.event}`) ?? "",
+    };
   }
-
-  if (rows.length === 0) {
-    setMessage("There are no events to RSVP for on this invitation.", true);
+  const { answers, missing } = buildAnswers(invitation.events, choices);
+  if (missing.length) {
+    setMessage(`Answer every event before sending. Still needed: ${missing.join(", ")}.`, true);
+    els.formRsvp.reportValidity();
     return;
   }
 
-  const { error } = await supabase.from("rsvps").upsert(rows, { onConflict: "guest_id,event" });
+  const button = els.formRsvp.querySelector('button[type="submit"]');
+  button.disabled = true;
+  setMessage("Sending…");
+  const { error } = await supabase.rpc("submit_rsvp", {
+    invitee: invitation.id,
+    answers,
+    note: String(form.get("note") ?? "").trim(),
+  });
+  button.disabled = false;
 
   if (error) {
-    console.error("RSVP upsert failed:", error);
-    const detail = error.message || String(error);
-    setMessage(`Could not save RSVP: ${detail}`, true);
+    console.error("submit_rsvp failed:", error);
+    setMessage(`Your RSVP wasn't saved: ${error.message || "unknown error"}. Try again, or contact Harrison.`, true);
     return;
   }
-
-  setMessage("RSVP sent. Thank you!");
+  setMessage("Thank you. Your RSVP is saved. You can come back and change it any time before the deadline.");
 }
 
 function init() {
-  if (isConfigReady()) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-
-  els.formFind.addEventListener("submit", findParty);
+  if (isConfigReady()) supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  els.formFind.addEventListener("submit", findInvitation);
   els.formRsvp.addEventListener("submit", submitRSVP);
   els.btnReset.addEventListener("click", (e) => {
     e.preventDefault();
