@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   RSVP_EVENTS,
   buildAnswers,
+  countError,
   formatAnswer,
   summarize,
   groupByInvitee,
@@ -96,4 +97,14 @@ test("parseFilter", () => {
   assert.equal(parseFilter("#open-house"), "open-house");
   assert.equal(parseFilter(""), "all");
   assert.equal(parseFilter("#temple"), "all");
+});
+
+test("countError accepts 1 to seats and explains anything else", () => {
+  assert.equal(countError(5, "1"), "");
+  assert.equal(countError(5, " 5 "), "");
+  assert.equal(countError(5, ""), "Enter how many are coming.");
+  assert.equal(countError(5, "0"), "Enter a whole number, 1 or more.");
+  assert.equal(countError(5, "2.5"), "Enter a whole number, 1 or more.");
+  assert.equal(countError(5, "x"), "Enter a whole number, 1 or more.");
+  assert.equal(countError(5, "6"), "Your invitation is for 5. Enter 5 or fewer.");
 });

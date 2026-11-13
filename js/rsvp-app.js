@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-config.js";
-import { buildAnswers, eventBySlug, sortInvited } from "./rsvp-model.js";
+import { buildAnswers, countError, eventBySlug, sortInvited } from "./rsvp-model.js";
 
 /**
  * Guest RSVP flow: find an invitation by name (find_invitees), show its events
@@ -79,12 +79,9 @@ function renderEventField(inv) {
       ? `
       <label class="rsvp-field rsvp-count" ${yes ? "" : "hidden"}>
         <span class="rsvp-field__label">How many of your ${inv.seats} are coming?</span>
-        <select class="rsvp-input" name="count-${slug}" ${yes ? "required" : "disabled"}>
-          <option value="">Choose a number</option>
-          ${Array.from({ length: inv.seats }, (_, i) => i + 1)
-            .map((n) => `<option value="${n}" ${yes && inv.coming === n ? "selected" : ""}>${n}</option>`)
-            .join("")}
-        </select>
+        <input class="rsvp-input" type="number" name="count-${slug}" inputmode="numeric"
+          min="1" max="${inv.seats}" step="1" placeholder="1 to ${inv.seats}" data-seats="${inv.seats}"
+          value="${yes ? inv.coming : ""}" ${yes ? "required" : "disabled"} />
       </label>`
       : "";
 
@@ -125,13 +122,21 @@ function renderInvitation() {
   els.guestFields.querySelectorAll(".rsvp-event-field").forEach((fieldset) => {
     const count = fieldset.querySelector(".rsvp-count");
     if (!count) return;
-    const select = count.querySelector("select");
+    const input = count.querySelector("input");
+    const seats = Number(input.dataset.seats);
+    const check = () => input.setCustomValidity(input.disabled ? "" : countError(seats, input.value));
+    input.addEventListener("input", () => {
+      check();
+      if (!input.validity.valid) input.reportValidity();
+    });
+    check();
     fieldset.querySelectorAll('input[type="radio"]').forEach((radio) => {
       radio.addEventListener("change", () => {
         const yes = radio.value === "yes" && radio.checked;
         count.hidden = !yes;
-        select.disabled = !yes;
-        select.required = yes;
+        input.disabled = !yes;
+        input.required = yes;
+        check();
       });
     });
   });
@@ -226,6 +231,16 @@ async function submitRSVP(e) {
     };
   }
   const { answers, missing } = buildAnswers(invitation.events, choices);
+  const overCap = invitation.events.find(
+    (inv) => choices[inv.event].attending === "yes" && inv.seats > 1 && choices[inv.event].count.trim() !== "" &&
+      countError(inv.seats, choices[inv.event].count)
+  );
+  if (overCap) {
+    const name = eventBySlug(overCap.event)?.name ?? overCap.event;
+    setMessage(`${name}: ${countError(overCap.seats, choices[overCap.event].count)}`, true);
+    els.formRsvp.reportValidity();
+    return;
+  }
   if (missing.length) {
     setMessage(`Answer every event before sending. Still needed: ${missing.join(", ")}.`, true);
     els.formRsvp.reportValidity();

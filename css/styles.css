@@ -1487,8 +1487,8 @@ a:hover {
   color: color-mix(in srgb, var(--ink-soft) 60%, var(--vellum));
 }
 
-select.rsvp-input {
-  cursor: pointer;
+.rsvp-count .rsvp-input {
+  max-width: 8rem;
 }
 
 .rsvp-choices {

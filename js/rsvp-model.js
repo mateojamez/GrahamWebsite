@@ -35,6 +35,20 @@ export function sortInvited(events) {
 }
 
 /**
+ * Checks a typed head count against an invitation's seats.
+ * @param {number} seats @param {string} raw what the guest typed
+ * @returns {string} an error message, or "" when the count is valid
+ */
+export function countError(seats, raw) {
+  const text = String(raw ?? "").trim();
+  if (text === "") return "Enter how many are coming.";
+  const n = Number(text);
+  if (!Number.isInteger(n) || n < 1) return "Enter a whole number, 1 or more.";
+  if (n > seats) return `Your invitation is for ${seats}. Enter ${seats} or fewer.`;
+  return "";
+}
+
+/**
  * Turns form choices into the `answers` object submit_rsvp() takes.
  * @param {InvitedEvent[]} invited
  * @param {Record<string, { attending: "yes" | "no" | "", count: string }>} choices keyed by event slug
@@ -51,9 +65,8 @@ export function buildAnswers(invited, choices) {
     } else if (choice.attending === "yes" && inv.seats === 1) {
       answers[inv.event] = 1;
     } else if (choice.attending === "yes") {
-      const n = Number(choice.count);
-      if (Number.isInteger(n) && n >= 1 && n <= inv.seats) answers[inv.event] = n;
-      else missing.push(name);
+      if (countError(inv.seats, choice.count)) missing.push(name);
+      else answers[inv.event] = Number(String(choice.count).trim());
     } else {
       missing.push(name);
     }
