@@ -8,6 +8,7 @@ import {
   formatAnswer,
   summarize,
   groupByInvitee,
+  nameMatches,
   parseFilter,
   sortInvited,
 } from "../js/rsvp-model.js";
@@ -107,4 +108,13 @@ test("countError accepts 1 to seats and explains anything else", () => {
   assert.equal(countError(5, "2.5"), "Enter a whole number, 1 or more.");
   assert.equal(countError(5, "x"), "Enter a whole number, 1 or more.");
   assert.equal(countError(5, "6"), "Your invitation is for 5. Enter 5 or fewer.");
+});
+
+test("nameMatches finds names by the start of any word", () => {
+  assert.equal(nameMatches("Megan Sirstins Love", "megan love"), true);
+  assert.equal(nameMatches("Megan Sirstins Love", "sirst"), true);
+  assert.equal(nameMatches("Megan Sirstins Love", ""), true);
+  assert.equal(nameMatches("Megan Sirstins Love", "megan clark"), false);
+  assert.equal(nameMatches("O'Neil Family", "oneil"), false);
+  assert.equal(nameMatches("O'Neil Family", "neil"), true);
 });

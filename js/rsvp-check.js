@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-config.js";
-import { RSVP_EVENTS, formatAnswer, groupByInvitee, parseFilter, summarize } from "./rsvp-model.js";
+import { RSVP_EVENTS, formatAnswer, groupByInvitee, nameMatches, parseFilter, summarize } from "./rsvp-model.js";
 
 /**
  * Couple's dashboard (rsvpcheck/): loads rsvp_report() and shows totals and one
@@ -15,6 +15,7 @@ const els = {
   head: document.getElementById("rsvpcheck-head"),
   body: document.getElementById("rsvpcheck-body"),
   refresh: document.getElementById("rsvpcheck-refresh"),
+  search: document.getElementById("rsvpcheck-search"),
 };
 
 const supabase =
@@ -84,7 +85,8 @@ function renderTable(filter, events) {
   els.head.replaceChildren(
     h("tr", {}, h("th", {}, "Invitation"), ...events.map((e) => h("th", {}, e.name)), h("th", {}, "Dietary needs"), h("th", {}, "Replied"))
   );
-  const invitees = groupByInvitee(rows, filter);
+  const query = els.search.value;
+  const invitees = groupByInvitee(rows, filter).filter((inv) => nameMatches(inv.name, query));
   els.body.replaceChildren(
     ...invitees.map((inv) =>
       h(
@@ -105,13 +107,18 @@ function renderTable(filter, events) {
     )
   );
   if (invitees.length === 0) {
-    els.body.append(h("tr", {}, h("td", { colspan: String(events.length + 3) }, "No invitations yet.")));
+    els.body.append(h("tr", {}, h("td", { colspan: String(events.length + 3) }, query.trim() ? `No invitation matches "${query.trim()}".` : "No invitations yet.")));
   }
+}
+
+function currentEvents() {
+  const filter = parseFilter(location.hash);
+  return filter === "all" ? RSVP_EVENTS : RSVP_EVENTS.filter((e) => e.slug === filter);
 }
 
 function render() {
   const filter = parseFilter(location.hash);
-  const events = filter === "all" ? RSVP_EVENTS : RSVP_EVENTS.filter((e) => e.slug === filter);
+  const events = currentEvents();
   renderFilters(filter);
   renderTotals(events);
   renderTable(filter, events);
@@ -136,5 +143,6 @@ async function load() {
 
 window.addEventListener("hashchange", render);
 els.refresh.addEventListener("click", load);
+els.search.addEventListener("input", () => renderTable(parseFilter(location.hash), currentEvents()));
 render();
 load();

@@ -1487,6 +1487,11 @@ a:hover {
   color: color-mix(in srgb, var(--ink-soft) 60%, var(--vellum));
 }
 
+.rsvpcheck-search {
+  max-width: 22rem;
+  margin-top: 1.5rem;
+}
+
 .rsvp-count .rsvp-input {
   max-width: 8rem;
 }

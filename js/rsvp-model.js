@@ -122,6 +122,17 @@ export function groupByInvitee(rows, filter) {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }
 
+/**
+ * True when every word typed appears at the start of a word in the name,
+ * ignoring case and punctuation. An empty search matches everyone.
+ * @param {string} name @param {string} query
+ */
+export function nameMatches(name, query) {
+  const words = (v) => String(v ?? "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const nameWords = words(name);
+  return words(query).every((q) => nameWords.some((w) => w.startsWith(q)));
+}
+
 /** The dashboard filter from a URL hash: an RSVP event slug, or "all". @param {string} hash */
 export function parseFilter(hash) {
   const slug = String(hash ?? "").replace(/^#/, "");
